@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "backend-academy"
+version = "0.1.0"
+description = ""
+authors = ["Ruslan Sirazhetdinov <ruslansir@icloud.com>"]
+readme = "README.md"
+packages = [{include = "backend_academy"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.91.0"
+uvicorn = "^0.20.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
