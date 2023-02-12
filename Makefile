@@ -25,4 +25,4 @@ swagger:
 
 .PHONY: format
 format:
-	black
+	black .
