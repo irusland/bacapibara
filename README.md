@@ -3,8 +3,8 @@
 ## Requirements
 
 Following packages should be installed 
-0) python 3.11
-0) poetry
+0. python 3.11 
+1. poetry
 
 ## Preparation
 
