@@ -15,7 +15,7 @@ install:
 
 .PHONY: run
 run:
-	python -m uvicorn main:app
+	python -m uvicorn api.main:app
 
 
 .PHONY: swagger
@@ -25,4 +25,4 @@ swagger:
 
 .PHONY: format
 format:
-	black
+	black .
