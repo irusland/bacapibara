@@ -1,3 +1,2 @@
 class UserNotFoundError(Exception):
     pass
-
