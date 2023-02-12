@@ -30,7 +30,7 @@ jobs:
         poetry install
     - name: Lint
       run: |
-        black . --check
+        poetry run black . --check
     - name: Test with pytest
       run: |
-        pytest -v
+        poetry run pytest -v
