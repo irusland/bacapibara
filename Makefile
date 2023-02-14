@@ -25,8 +25,8 @@ swagger:
 
 .PHONY: format
 format:
-	black .
+	python -m black .
 
 .PHONY: test
 test:
-	pytest
+	python -m pytest
