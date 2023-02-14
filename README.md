@@ -30,13 +30,13 @@ make swagger
 
 ## Contribution 
 
-Run linters before commiting changes
+Run linters and tests before commiting changes
 
 ```shell
 make format
+make test
 ```
 
 ## Credits 
 
 [Ruslan Sirazhetdinov - @irusland](https://github.com/irusland)
-
