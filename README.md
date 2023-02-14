@@ -1,5 +1,7 @@
 # bacapibara - Backend Academy API
 
+![bacapybara](bacapybara.png)
+
 ## Requirements
 
 Following packages should be installed 
