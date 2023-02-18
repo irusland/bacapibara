@@ -1,5 +1,5 @@
 from api.errors import UserNotFoundError
-from api.models.user import User
+from api.models.db.user import User
 
 
 class UsersStorage:

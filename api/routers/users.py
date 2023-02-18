@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
-from api.models.user import User
+from api.models.api.new_user import NewUser
+from api.models.api.user import User as APIUser
+from api.models.db.user import User as DBUser
 from api.storage.users import UsersStorage
 
 
@@ -10,31 +12,59 @@ class UsersRouter(APIRouter):
         self.tags = ["users"]
 
         @self.post("/users/", response_model=int)
-        async def create_user(name: str, about: str, age: int, email: str):
-            new_user = User(
+        async def create_user(user: NewUser):
+            new_user = DBUser(
                 id=len(user_storage),
-                name=name,
-                about=about,
-                age=age,
-                email=email,
+                name=user.name,
+                about=user.about,
+                age=user.age,
+                email=user.email,
+                password=user.password,
             )
             return user_storage.create_user(new_user).id
 
-        @self.get("/users/", response_model=list[User])
+        @self.get("/users/", response_model=list[APIUser])
         async def get_users():
-            return user_storage.get_users()
+            return [
+                APIUser(
+                    id=user.id,
+                    name=user.name,
+                    about=user.about,
+                    age=user.age,
+                    email=user.email,
+                    password=user.password,
+                )
+                for user in user_storage.get_users()
+            ]
 
         @self.get("/users/{id}")
         async def get_user(id: int):
-            return user_storage.get_user(id_=id)
-
-        @self.put("/users/{id}", response_model=User)
-        async def update_user(id: int, name: str, about: str, age: int, email: str):
-            new_user = User(
-                id=id,
-                name=name,
-                about=about,
-                age=age,
-                email=email,
+            user = user_storage.get_user(id_=id)
+            return APIUser(
+                id=user.id,
+                name=user.name,
+                about=user.about,
+                age=user.age,
+                email=user.email,
+                password=user.password,
             )
-            return user_storage.update_user(id, new_user)
+
+        @self.put("/users/{id}", response_model=APIUser)
+        async def update_user(id: int, user: NewUser):
+            new_user = DBUser(
+                id=id,
+                name=user.name,
+                about=user.about,
+                age=user.age,
+                email=user.email,
+                password=user.password,
+            )
+            user = user_storage.update_user(id, new_user)
+            return APIUser(
+                id=user.id,
+                name=user.name,
+                about=user.about,
+                age=user.age,
+                email=user.email,
+                password=user.password,
+            )
