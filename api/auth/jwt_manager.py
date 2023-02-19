@@ -3,6 +3,7 @@ from typing import Any
 import jwt
 
 from api.auth.jwt_settings import JWTSettings
+from api.models.api.user_credentials import UserCredentials
 
 
 class JWTManager:
@@ -14,7 +15,7 @@ class JWTManager:
         user_id: int,
     ) -> str:
         return jwt.encode(
-            payload={"user_id": user_id},
+            payload=UserCredentials(id=user_id).dict(),
             key=self._jwt_settings.secret,
             algorithm=self._jwt_settings.algorithm,
         )

@@ -1,15 +1,11 @@
-from typing import Any
+import bcrypt
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter, Request, Depends
-from fastapi.security import HTTPBearer
-
-from api.auth.jwt_manager import JWTManager
 from api.models.api.new_user import NewUser
 from api.models.api.user import User as APIUser
 from api.models.db.user import User as DBUser
-from api.routers.middlewares.jwt import JWTMiddleware, AuthGroup, JWTBearer
+from api.routers.middlewares.jwt import JWTMiddleware
 from api.storage.users import UsersStorage
-import bcrypt
 
 
 class UsersRouter(APIRouter):
@@ -17,12 +13,12 @@ class UsersRouter(APIRouter):
         self,
         user_storage: UsersStorage,
         jwt_middleware: JWTMiddleware,
-        jwt_bearer: JWTBearer,
     ):
         super().__init__()
-        self.tags = ["users"]
+        self.prefix = "/users"
+        self.tags = [self.prefix]
 
-        @self.post("/users/", response_model=int)
+        @self.post("/", response_model=int)
         async def create_user(user: NewUser):
             new_user = DBUser(
                 id=len(user_storage),
@@ -37,11 +33,10 @@ class UsersRouter(APIRouter):
             return user_storage.create_user(new_user).id
 
         @self.get(
-            "/users/",
+            "/",
             response_model=list[APIUser],
             dependencies=[
-                # Depends(jwt_middleware.ensure_has_rights([AuthGroup.ADMIN])),
-                Depends(jwt_bearer),
+                Depends(jwt_middleware.get_user_credentials()),
             ],
         )
         async def get_users() -> list[APIUser]:
@@ -58,9 +53,9 @@ class UsersRouter(APIRouter):
             ]
 
         @self.get(
-            "/users/{id}",
+            "/{id}",
             response_model=APIUser,
-            dependencies=[Depends(jwt_middleware.ensure_has_rights([AuthGroup.USER]))],
+            dependencies=[Depends(jwt_middleware.get_user_credentials())],
         )
         async def get_user(id: int) -> APIUser:
             user = user_storage.get_user(id_=id)
@@ -74,9 +69,9 @@ class UsersRouter(APIRouter):
             )
 
         @self.put(
-            "/users/{id}",
+            "/{id}",
             response_model=APIUser,
-            dependencies=[Depends(jwt_middleware.ensure_has_rights([AuthGroup.USER]))],
+            dependencies=[Depends(jwt_middleware.get_user_credentials())],
         )
         async def update_user(id: int, user: NewUser) -> APIUser:
             new_user = DBUser(
