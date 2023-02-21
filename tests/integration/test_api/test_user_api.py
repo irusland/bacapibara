@@ -56,7 +56,13 @@ def login_request(test_user: User) -> LoginRequest:
 
 
 class TestUserAPI:
-    def test_get_users(self, client: TestClient, login_request: LoginRequest, users_storage: UsersStorage, new_user: NewUser):
+    def test_get_users(
+        self,
+        client: TestClient,
+        login_request: LoginRequest,
+        users_storage: UsersStorage,
+        new_user: NewUser,
+    ):
         client.post(
             "/users/",
             json=new_user.dict(),
@@ -68,13 +74,13 @@ class TestUserAPI:
         assert res.status_code == HTTPStatus.OK
 
     def test_create_user(
-            self,
-            client: TestClient,
-            users_storage: UsersStorage,
-            new_user: NewUser,
-            test_user: User,
-            db_user: DBUser,
-            login_request: LoginRequest,
+        self,
+        client: TestClient,
+        users_storage: UsersStorage,
+        new_user: NewUser,
+        test_user: User,
+        db_user: DBUser,
+        login_request: LoginRequest,
     ):
         expected_user = db_user
 
@@ -85,8 +91,11 @@ class TestUserAPI:
         assert users_storage.get_users() == [expected_user]
 
     def test_get_user(
-            self, client: TestClient, users_storage: UsersStorage, test_user: User,
-            login_request: LoginRequest
+        self,
+        client: TestClient,
+        users_storage: UsersStorage,
+        test_user: User,
+        login_request: LoginRequest,
     ):
         expected_user = test_user
         client.post("/users/", json=expected_user.dict())
@@ -99,8 +108,11 @@ class TestUserAPI:
         assert User.parse_obj(res.json()) == expected_user
 
     def test_update_user(
-            self, client: TestClient, users_storage: UsersStorage, new_user: NewUser,
-            login_request: LoginRequest
+        self,
+        client: TestClient,
+        users_storage: UsersStorage,
+        new_user: NewUser,
+        login_request: LoginRequest,
     ):
         client.post("/users/", json=new_user.dict())
         client.post("/login/", json=login_request.dict())

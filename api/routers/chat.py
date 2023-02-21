@@ -63,7 +63,7 @@ class ChatRouter(APIRouter):
         jwt_manager: JWTManager,
         jwt_settings: JWTSettings,
         jwt_middleware: JWTMiddleware,
-        chat_storage:ChatStorage,
+        chat_storage: ChatStorage,
     ):
         super().__init__()
         self.prefix = "/chat"
@@ -87,9 +87,11 @@ class ChatRouter(APIRouter):
                     detail="Starting a chat with stranger is not allowed",
                 )
             chat = chat_storage.create_chat([user.id, friend_id])
-            logger.debug('Started new chat %s', chat)
+            logger.debug("Started new chat %s", chat)
 
-            return RedirectResponse(url=f"/chat/{chat.chat_id}", status_code=status.HTTP_303_SEE_OTHER)
+            return RedirectResponse(
+                url=f"/chat/{chat.chat_id}", status_code=status.HTTP_303_SEE_OTHER
+            )
 
         @self.get("/{chat_id}")
         async def get(chat_id: int):
@@ -104,7 +106,7 @@ class ChatRouter(APIRouter):
             except:
                 raise WebSocketException("User unauthorized")
 
-            print(f'>>> {user=}')
+            print(f">>> {user=}")
             await websocket.accept()
             while True:
                 data = await websocket.receive_text()

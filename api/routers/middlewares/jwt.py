@@ -61,9 +61,9 @@ class JWTCookie:
 
     async def __call__(self, request: Request) -> UserCredentials:
         jwt_cookie = request.cookies.get(self._jwt_settings.session_cookie_key)
-        logger.debug('extracted a jwt cookie %s', jwt_cookie)
+        logger.debug("extracted a jwt cookie %s", jwt_cookie)
         decoded_credentials = self._jwt_manager.decode(jwt_cookie)
-        logger.debug('decoded credentials = %s', decoded_credentials)
+        logger.debug("decoded credentials = %s", decoded_credentials)
         if not decoded_credentials:
             raise HTTPException(
                 status_code=403, detail="Invalid token or expired token."

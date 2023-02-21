@@ -36,14 +36,20 @@ class TestFriendAPI:
         user_id: int,
         friend_id: int,
         friends_storage: FriendsStorage,
-            prepare_users,
+        prepare_users,
     ):
-        client.post("/login/", json=LoginRequest(email=f'string{user_id}', password='string').dict())
+        client.post(
+            "/login/",
+            json=LoginRequest(email=f"string{user_id}", password="string").dict(),
+        )
 
         res = client.post(f"/friends/add/{friend_id}")
 
         assert res.status_code == HTTPStatus.OK
-        assert friends_storage.get_friends() == {(user_id, friend_id), (friend_id, user_id)}
+        assert friends_storage.get_friends() == {
+            (user_id, friend_id),
+            (friend_id, user_id),
+        }
 
     @pytest.mark.parametrize(
         "user_id, friend_id",
@@ -58,9 +64,12 @@ class TestFriendAPI:
         user_id: int,
         friend_id: int,
         friends_storage: FriendsStorage,
-            prepare_users,
+        prepare_users,
     ):
-        client.post("/login/", json=LoginRequest(email=f'string{user_id}', password='string').dict())
+        client.post(
+            "/login/",
+            json=LoginRequest(email=f"string{user_id}", password="string").dict(),
+        )
 
         res = client.post(f"/friends/add/{friend_id}")
 
@@ -69,6 +78,7 @@ class TestFriendAPI:
         with pytest.raises(Exception):
             client.post(f"/friends/add/{friend_id}")
 
-        assert friends_storage.get_friends() == {(user_id, friend_id),
-                                                 (friend_id, user_id)}
-
+        assert friends_storage.get_friends() == {
+            (user_id, friend_id),
+            (friend_id, user_id),
+        }

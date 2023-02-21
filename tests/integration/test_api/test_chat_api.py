@@ -37,9 +37,12 @@ class TestChatAPI:
         user_id: int,
         friend_id: int,
         chat_storage: ChatStorage,
-            prepare_users,
+        prepare_users,
     ):
-        client.post("/login/", json=LoginRequest(email=f'string{user_id}', password='string').dict())
+        client.post(
+            "/login/",
+            json=LoginRequest(email=f"string{user_id}", password="string").dict(),
+        )
         client.post(f"/friends/add/{friend_id}")
 
         res = client.post(f"/chat/start/{friend_id}")

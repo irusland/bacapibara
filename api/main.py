@@ -120,7 +120,7 @@ client.post(
         "password": "string",
     },
 )
-login_request = LoginRequest(email='string', password='string')
+login_request = LoginRequest(email="string", password="string")
 login_response = client.post("/login/", json=login_request.dict())
 print(login_response.headers)
 
@@ -132,5 +132,3 @@ client.post(
 client.post(
     "/chat/start/1",
 )
-
-
