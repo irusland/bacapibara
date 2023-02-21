@@ -13,6 +13,13 @@ class UsersStorage:
         if user.id in self._users:
             raise Exception(f"User id={user.id} already exists")
 
+        try:
+            self.find_user(email=user.email)
+        except UserNotFoundError:
+            pass
+        else:
+            raise Exception(f"User email={user.email} already exists")
+
         self._users[user.id] = user
 
         return user

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class LoginRouter(APIRouter):
     def __init__(
         self,
-        user_storage: UsersStorage,
+        users_storage: UsersStorage,
         jwt_manager: JWTManager,
         jwt_settings: JWTSettings,
     ):
@@ -28,7 +28,7 @@ class LoginRouter(APIRouter):
 
         @self.post("/")
         async def login(login_request: LoginRequest, response: Response):
-            user = user_storage.find_user(login_request.email)
+            user = users_storage.find_user(login_request.email)
             if bcrypt.checkpw(login_request.password.encode(), user.password.encode()):
                 response.set_cookie(
                     key=jwt_settings.session_cookie_key,

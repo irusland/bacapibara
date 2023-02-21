@@ -35,22 +35,21 @@ class JWTBearer(HTTPBearer):
         self._jwt_settings = jwt_settings
 
     async def __call__(self, request: Request) -> UserCredentials:
-        # credentials: HTTPAuthorizationCredentials = await super(
-        #     JWTBearer, self
-        # ).__call__(request)
-        # if credentials:
-        #     if not credentials.scheme == "Bearer":
-        #         raise HTTPException(
-        #             status_code=403, detail="Invalid authentication scheme."
-        #         )
-        #     if not self._jwt_manager.decode(credentials.credentials):
-        #         raise HTTPException(
-        #             status_code=403, detail="Invalid token or expired token."
-        #         )
-        #     return UserCredentials.parse_obj(credentials.credentials)
-        # else:
-        #     raise HTTPException(status_code=403, detail="Invalid authorization code.")
-        pass
+        credentials: HTTPAuthorizationCredentials = await super(
+            JWTBearer, self
+        ).__call__(request)
+        if credentials:
+            if not credentials.scheme == "Bearer":
+                raise HTTPException(
+                    status_code=403, detail="Invalid authentication scheme."
+                )
+            if not self._jwt_manager.decode(credentials.credentials):
+                raise HTTPException(
+                    status_code=403, detail="Invalid token or expired token."
+                )
+            return UserCredentials.parse_obj(credentials.credentials)
+        else:
+            raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
 
 class JWTCookie:
@@ -62,12 +61,13 @@ class JWTCookie:
 
     async def __call__(self, request: Request) -> UserCredentials:
         jwt_cookie = request.cookies.get(self._jwt_settings.session_cookie_key)
+        logger.debug('extracted a jwt cookie %s', jwt_cookie)
         decoded_credentials = self._jwt_manager.decode(jwt_cookie)
+        logger.debug('decoded credentials = %s', decoded_credentials)
         if not decoded_credentials:
             raise HTTPException(
                 status_code=403, detail="Invalid token or expired token."
             )
-        logger.info("decoded credentials %s", decoded_credentials)
         return UserCredentials.parse_obj(decoded_credentials)
 
 
@@ -88,10 +88,10 @@ class JWTMiddleware:
 
     async def _get_credentials(self, request: Request) -> UserCredentials:
         if self._jwt_settings.use_bearer:
-            logger.debug("getting credentials from token")
+            logger.debug("getting credentials from bearer header")
             method = self._jwt_bearer
         else:
-            logger.debug("getting credentials from bearer header")
+            logger.debug("getting credentials from cookie")
             method = self._jwt_cookie
         credentials = await method.__call__(request)
         logger.debug("got credentials %s", credentials)

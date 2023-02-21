@@ -1,12 +1,15 @@
+import unittest.mock
 from http import HTTPStatus
 
 import pytest
 from starlette.testclient import TestClient
 
+from api.models.api.login_request import LoginRequest
 from api.models.api.new_user import NewUser
 from api.models.api.user import User
 from api.models.db.user import User as DBUser
 from api.storage.users import UsersStorage
+from tests.utils import AnyStr
 
 
 @pytest.fixture()
@@ -16,7 +19,7 @@ def new_user() -> NewUser:
         age=42,
         email="irusland@mail.ru",
         about="It's me",
-        password="capibara",
+        password=AnyStr("capibara"),
     )
 
 
@@ -44,19 +47,34 @@ def db_user(test_user: User) -> DBUser:
     )
 
 
+@pytest.fixture()
+def login_request(test_user: User) -> LoginRequest:
+    return LoginRequest(
+        email=test_user.email,
+        password=test_user.password,
+    )
+
+
 class TestUserAPI:
-    def test_get_users(self, client: TestClient):
+    def test_get_users(self, client: TestClient, login_request: LoginRequest, users_storage: UsersStorage, new_user: NewUser):
+        client.post(
+            "/users/",
+            json=new_user.dict(),
+        )
+        client.post("/login/", json=login_request.dict())
+
         res = client.get("/users")
 
         assert res.status_code == HTTPStatus.OK
 
     def test_create_user(
-        self,
-        client: TestClient,
-        user_storage: UsersStorage,
-        new_user: NewUser,
-        test_user: User,
-        db_user: DBUser,
+            self,
+            client: TestClient,
+            users_storage: UsersStorage,
+            new_user: NewUser,
+            test_user: User,
+            db_user: DBUser,
+            login_request: LoginRequest,
     ):
         expected_user = db_user
 
@@ -64,14 +82,16 @@ class TestUserAPI:
 
         assert res.status_code == HTTPStatus.OK
         assert res.json() == expected_user.id
-        assert user_storage.get_users() == [expected_user]
+        assert users_storage.get_users() == [expected_user]
 
     def test_get_user(
-        self, client: TestClient, user_storage: UsersStorage, test_user: User
+            self, client: TestClient, users_storage: UsersStorage, test_user: User,
+            login_request: LoginRequest
     ):
         expected_user = test_user
-        client.post("/users", json=expected_user.dict())
+        client.post("/users/", json=expected_user.dict())
         user_id = expected_user.id
+        client.post("/login/", json=login_request.dict())
 
         res = client.get(f"/users/{user_id}")
 
@@ -79,9 +99,11 @@ class TestUserAPI:
         assert User.parse_obj(res.json()) == expected_user
 
     def test_update_user(
-        self, client: TestClient, user_storage: UsersStorage, new_user: NewUser
+            self, client: TestClient, users_storage: UsersStorage, new_user: NewUser,
+            login_request: LoginRequest
     ):
-        client.post("/users", json=new_user.dict())
+        client.post("/users/", json=new_user.dict())
+        client.post("/login/", json=login_request.dict())
         new_user = User(
             id=0,
             name="england",
@@ -95,7 +117,7 @@ class TestUserAPI:
         res = client.put(f"/users/{user_id}", json=new_user.dict())
 
         assert res.status_code == HTTPStatus.OK
-        assert user_storage.get_users() == [
+        assert users_storage.get_users() == [
             DBUser(
                 id=new_user.id,
                 name=new_user.name,

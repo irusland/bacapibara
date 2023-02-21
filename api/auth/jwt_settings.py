@@ -7,7 +7,7 @@ class JWTSettings(BaseSettings):
     secret: str = "irusland"
     algorithm: str = "HS256"
     session_cookie_key: str = "session"
-    session_cookie_expires: timedelta = timedelta(minutes=42)
+    session_cookie_expires: timedelta = timedelta(days=42)
     use_bearer: bool = Field(
         False,
         description="used to switch between cookie or bearer-header authentication.",
