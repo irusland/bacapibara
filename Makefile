@@ -37,6 +37,22 @@ swagger:
 format:
 	python -m black .
 
+
 .PHONY: test
 test:
 	python -m pytest -l
+
+
+.PHONY: kube-init
+kube-init:
+	echo EXECUTE: 'eval $(minikube docker-env)'
+
+
+.PHONY: kube-rm
+kube-rm:
+	kubectl delete pod bacapibara-api
+
+
+.PHONY: kube-run
+kube-run:
+	kubectl run bacapibara-api --image=bacapibara_api:latest --port=8000 --image-pull-policy=Never --command -- python3 -m uvicorn api.main:app --host 0.0.0.0

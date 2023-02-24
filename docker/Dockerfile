@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-COPY api/ .
+COPY api/ ./api
 COPY poetry.lock .
 COPY pyproject.toml .
 COPY Makefile .
