@@ -25,7 +25,7 @@ docker-build:
 
 .PHONY: docker-up
 docker-up:
-	docker-compose up --force-recreate api
+	docker-compose up
 
 
 .PHONY: swagger
