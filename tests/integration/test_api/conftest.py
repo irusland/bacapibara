@@ -3,6 +3,7 @@ from starlette.testclient import TestClient
 
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
+from api.connection.web_socket_connection_manager import WebSocketConnectionManager
 from api.main import App
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
@@ -45,6 +46,11 @@ def jwt_cookie(jwt_manager: JWTManager, jwt_settings: JWTSettings) -> JWTCookie:
 
 
 @pytest.fixture()
+def web_socket_connection_manager() -> WebSocketConnectionManager:
+    return WebSocketConnectionManager()
+
+
+@pytest.fixture()
 def chat_router(
     users_storage: UsersStorage,
     friends_storage: FriendsStorage,
@@ -52,6 +58,7 @@ def chat_router(
     jwt_settings: JWTSettings,
     jwt_middleware: JWTMiddleware,
     chat_storage: ChatStorage,
+    web_socket_connection_manager: WebSocketConnectionManager,
 ) -> ChatRouter:
     return ChatRouter(
         jwt_manager=jwt_manager,
@@ -60,6 +67,7 @@ def chat_router(
         jwt_middleware=jwt_middleware,
         users_storage=users_storage,
         friends_storage=friends_storage,
+        web_socket_connection_manager=web_socket_connection_manager,
     )
 
 

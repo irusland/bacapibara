@@ -7,10 +7,12 @@ from fastapi import WebSocket
 from fastapi.responses import HTMLResponse
 from starlette import status
 from starlette.responses import RedirectResponse, FileResponse
+from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import WebSocketException
 
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
+from api.connection.web_socket_connection_manager import WebSocketConnectionManager
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
@@ -20,7 +22,9 @@ from api.storage.users import UsersStorage
 
 logger = logging.getLogger(__name__)
 
-HTML = """
+
+def _get_HTML(chat_id: int, user: User) -> str:
+    return f"""
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,6 +32,10 @@ HTML = """
     </head>
     <body>
         <h1>WebSocket Chat</h1>
+        <div>
+        <h3>logged in as:</h3>
+        {user.name}
+        </div> 
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
             <button>Send</button>
@@ -35,20 +43,20 @@ HTML = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://127.0.0.1:8000/chat/ws");
-            ws.onmessage = function(event) {
+            var ws = new WebSocket("ws://127.0.0.1:8000/chat/ws/{chat_id}");
+            ws.onmessage = function(event) {{
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
                 var content = document.createTextNode(event.data)
                 message.appendChild(content)
                 messages.appendChild(message)
-            };
-            function sendMessage(event) {
+            }};
+            function sendMessage(event) {{
                 var input = document.getElementById("messageText")
                 ws.send(input.value)
                 input.value = ''
                 event.preventDefault()
-            }
+            }}
         </script>
     </body>
 </html>
@@ -64,6 +72,7 @@ class ChatRouter(APIRouter):
         jwt_settings: JWTSettings,
         jwt_middleware: JWTMiddleware,
         chat_storage: ChatStorage,
+        web_socket_connection_manager: WebSocketConnectionManager,
     ):
         super().__init__()
         self.prefix = "/chat"
@@ -94,20 +103,39 @@ class ChatRouter(APIRouter):
             )
 
         @self.get("/{chat_id}")
-        async def get(chat_id: int):
-            return HTMLResponse(HTML)
+        async def get(
+            chat_id: int,
+            user: User = Depends(jwt_middleware.get_user()),
+        ):
+            return HTMLResponse(_get_HTML(chat_id=chat_id, user=user))
 
-        @self.websocket("/ws")
+        @self.websocket("/ws/{chat_id}")
         async def websocket_endpoint(
             websocket: WebSocket,
+            chat_id: int,
         ):
+            await websocket.accept()
+
             try:
                 user: User = await jwt_middleware.get_user()(websocket)
             except:
                 raise WebSocketException("User unauthorized")
 
             print(f">>> {user=}")
-            await websocket.accept()
-            while True:
-                data = await websocket.receive_text()
-                await websocket.send_text(f"({user.name}): {data}")
+            web_socket_connection_manager.connect(user_id=user.id, websocket=websocket)
+
+            chat = chat_storage.get_chat(chat_id)
+
+            try:
+                while True:
+                    data = await websocket.receive_text()
+                    await web_socket_connection_manager.broadcast_to_users(
+                        chat.user_ids, f"({user.name}): {data}"
+                    )
+            except WebSocketDisconnect:
+                web_socket_connection_manager.disconnect(
+                    user_id=user.id, websocket=websocket
+                )
+                await web_socket_connection_manager.broadcast_to_users(
+                    chat.user_ids, f"User ({user.name}) left the chat"
+                )

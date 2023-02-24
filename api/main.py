@@ -6,6 +6,7 @@ from starlette.testclient import TestClient
 
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
+from api.connection.web_socket_connection_manager import WebSocketConnectionManager
 from api.errors import UserNotFoundError, NotAuthorizedError, NotAuthenticatedError
 from api.models.api.login_request import LoginRequest
 from api.routers import login
@@ -69,6 +70,8 @@ jwt_middleware = JWTMiddleware(
     users_storage=users_storage,
 )
 
+web_socket_connection_manager = WebSocketConnectionManager()
+
 users_router = UsersRouter(
     users_storage=users_storage,
     jwt_middleware=jwt_middleware,
@@ -88,6 +91,7 @@ chat_router = ChatRouter(
     jwt_settings=jwt_settings,
     jwt_middleware=jwt_middleware,
     chat_storage=chat_storage,
+    web_socket_connection_manager=web_socket_connection_manager,
 )
 
 app = App(
@@ -102,7 +106,7 @@ client = TestClient(app)
 res = client.post(
     "/users/",
     json={
-        "name": "string",
+        "name": "Alice",
         "age": 0,
         "about": "string",
         "email": "string",
@@ -113,7 +117,7 @@ res = client.post(
 client.post(
     "/users/",
     json={
-        "name": "string",
+        "name": "Bob",
         "age": 0,
         "about": "string",
         "email": "string2",
