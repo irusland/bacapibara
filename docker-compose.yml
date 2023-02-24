@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    ports:
+    - "8000:8000"
+    command:
+    - python3
+    - -m
+    - uvicorn
+    - api.main:app
+    - --host
+    - 0.0.0.0
+    volumes:
+      - ./:/app

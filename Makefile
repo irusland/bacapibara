@@ -18,6 +18,16 @@ run:
 	python -m uvicorn api.main:app --reload
 
 
+.PHONY: docker-build
+docker-build:
+	docker-compose build --no-cache --progress=plain
+
+
+.PHONY: docker-up
+docker-up:
+	docker-compose up --force-recreate api
+
+
 .PHONY: swagger
 swagger:
 	open -a safari http://localhost:8000/docs
