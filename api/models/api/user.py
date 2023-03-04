@@ -4,8 +4,9 @@ from pydantic import BaseModel, constr, conint
 
 
 class User(BaseModel):
-    id: int
+    id: int = 0
     name: str
     age: int
     about: str
     email: str
+    password: str

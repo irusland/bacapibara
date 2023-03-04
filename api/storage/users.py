@@ -1,5 +1,5 @@
 from api.errors import UserNotFoundError
-from api.models.user import User
+from api.models.db.user import User
 
 
 class UsersStorage:
@@ -12,6 +12,13 @@ class UsersStorage:
     def create_user(self, user: User) -> User:
         if user.id in self._users:
             raise Exception(f"User id={user.id} already exists")
+
+        try:
+            self.find_user(email=user.email)
+        except UserNotFoundError:
+            pass
+        else:
+            raise Exception(f"User email={user.email} already exists")
 
         self._users[user.id] = user
 
@@ -32,3 +39,10 @@ class UsersStorage:
 
         self._users[id_] = new_user
         return new_user
+
+    def find_user(self, email: str) -> User:
+        for id, user in self._users.items():
+            if user.email == email:
+                return user
+
+        raise UserNotFoundError(f"User was not found")

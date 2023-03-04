@@ -15,7 +15,7 @@ install:
 
 .PHONY: run
 run:
-	python -m uvicorn api.main:app
+	python -m uvicorn api.main:app --reload
 
 
 .PHONY: swagger
@@ -29,4 +29,4 @@ format:
 
 .PHONY: test
 test:
-	python -m pytest
+	python -m pytest -l
