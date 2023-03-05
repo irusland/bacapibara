@@ -7,7 +7,7 @@ import psycopg2
 
 class UsersStorage(IUsersStorage):
     def __init__(self, postgres_settings: PostgresSettings):
-        self._table_name = 'users'
+        self._table_name = "users"
         self._connection = None
         self._connection = psycopg2.connect(
             host=postgres_settings.host,
@@ -41,7 +41,7 @@ class UsersStorage(IUsersStorage):
     def __len__(self) -> int:
         cursor = self._connection.cursor()
         cursor.execute(f"SELECT COUNT(*) FROM {self._table_name}")
-        len_, = cursor.fetchone()
+        (len_,) = cursor.fetchone()
         cursor.close()
         return len_
 
@@ -53,13 +53,13 @@ class UsersStorage(IUsersStorage):
             VALUES (%(id)s, %(name)s, %(age)s, %(about)s, %(email)s, %(password)s);
             """,
             {
-                'id': user.id,
-                'name': user.name,
-                'age': user.age,
-                'about': user.about,
-                'email': user.email,
-                'password': user.password,
-            }
+                "id": user.id,
+                "name": user.name,
+                "age": user.age,
+                "about": user.about,
+                "email": user.email,
+                "password": user.password,
+            },
         )
         self._connection.commit()
         cursor.close()
@@ -96,7 +96,7 @@ class UsersStorage(IUsersStorage):
             FROM {self._table_name}
             WHERE id = %(id)s
             """,
-            {'id': id_}
+            {"id": id_},
         )
         id_, name, age, about, email, password = cursor.fetchone()
         user = User(
@@ -123,13 +123,13 @@ class UsersStorage(IUsersStorage):
             WHERE id = %(id)s
             """,
             {
-                'id': id_,
-                'name': new_user.name,
-                'age': new_user.age,
-                'about': new_user.about,
-                'email': new_user.email,
-                'password': new_user.password,
-            }
+                "id": id_,
+                "name": new_user.name,
+                "age": new_user.age,
+                "about": new_user.about,
+                "email": new_user.email,
+                "password": new_user.password,
+            },
         )
         return new_user
 

@@ -24,30 +24,31 @@ class TestUsersStorage:
 
     def test_create_user(self, users_storage: UsersStorage):
         user_id = len(users_storage)
-        assert users_storage.create_user(
-            user=User(
-                id=user_id,
-                name='irusland',
-                age=22,
-                about='its me',
-                email='irusland@mail.ru',
-                password='pasasdasdasdasdasd',
+        assert (
+            users_storage.create_user(
+                user=User(
+                    id=user_id,
+                    name="irusland",
+                    age=22,
+                    about="its me",
+                    email="irusland@mail.ru",
+                    password="pasasdasdasdasdasd",
+                )
             )
-        ) is not None
+            is not None
+        )
 
     def test_create_and_get_user(self, users_storage: UsersStorage):
         user_id = len(users_storage)
         user = User(
             id=user_id,
-            name='irusland',
+            name="irusland",
             age=22,
-            about='its me',
-            email='irusland@mail.ru',
-            password='pasasdasdasdasdasd',
+            about="its me",
+            email="irusland@mail.ru",
+            password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(
-            user=user
-        )
+        users_storage.create_user(user=user)
 
         actual_user = users_storage.get_user(id_=user_id)
 
@@ -63,15 +64,13 @@ class TestUsersStorage:
         initial_count = len(users_storage)
         user = User(
             id=initial_count,
-            name='irusland',
+            name="irusland",
             age=22,
-            about='its me',
-            email='irusland@mail.ru',
-            password='pasasdasdasdasdasd',
+            about="its me",
+            email="irusland@mail.ru",
+            password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(
-            user=user
-        )
+        users_storage.create_user(user=user)
 
         actual_count = len(users_storage)
 
@@ -81,28 +80,29 @@ class TestUsersStorage:
         user_id = len(users_storage)
         user = User(
             id=user_id,
-            name='irusland',
+            name="irusland",
             age=22,
-            about='its me',
-            email='irusland@mail.ru',
-            password='pasasdasdasdasdasd',
+            about="its me",
+            email="irusland@mail.ru",
+            password="pasasdasdasdasdasd",
         )
         new_user = User(
             id=0,
-            name='SOME DRASTIC CHANGE',
+            name="SOME DRASTIC CHANGE",
             age=100,
-            about='its definitely not me',
-            email='bruh@mail.ru',
-            password='qwerty',
+            about="its definitely not me",
+            email="bruh@mail.ru",
+            password="qwerty",
         )
-        users_storage.create_user(
-            user=user
-        )
+        users_storage.create_user(user=user)
 
-        assert users_storage.update_user(
-            id_=user_id,
-            new_user=new_user,
-        ) is not None
+        assert (
+            users_storage.update_user(
+                id_=user_id,
+                new_user=new_user,
+            )
+            is not None
+        )
 
         actual_user = users_storage.get_user(id_=user_id)
         assert actual_user is not None
