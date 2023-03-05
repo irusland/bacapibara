@@ -16,7 +16,7 @@ from api.connection.web_socket_connection_manager import WebSocketConnectionMana
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
-from api.storage.chat import ChatStorage
+from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
 

@@ -4,7 +4,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from api.models.api.login_request import LoginRequest
-from api.storage.chat import ChatStorage
+from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 
 

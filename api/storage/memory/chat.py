@@ -1,7 +1,8 @@
 from api.models.api.chat import Chat
+from api.storage.interface.chat import IChatStorage
 
 
-class ChatStorage:
+class ChatStorage(IChatStorage):
     def __init__(self):
         self._chats: dict[int, Chat] = {}
 

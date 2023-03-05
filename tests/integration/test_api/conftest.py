@@ -10,7 +10,7 @@ from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
-from api.storage.chat import ChatStorage
+from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
 
