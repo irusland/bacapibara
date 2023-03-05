@@ -1,3 +1,5 @@
+from typing import Any
+
 from api.errors import UserNotFoundError
 from api.models.db.user import User
 from api.storage.database.settings import PostgresSettings
@@ -29,7 +31,7 @@ class UsersStorage(IUsersStorage):
             name varchar(45) NOT NULL,
             age integer NOT NULL,
             about varchar(450) NOT NULL,
-            email varchar(45) NOT NULL,
+            email varchar(45) NOT NULL UNIQUE,
             password varchar(450) NOT NULL
         );
         """
@@ -88,15 +90,15 @@ class UsersStorage(IUsersStorage):
             )
         return users
 
-    def get_user(self, id_: int) -> User:
+    def _select_user(self, raw_where_clause: str, data: dict[str, Any]) -> User:
         cursor = self._connection.cursor()
         cursor.execute(
             f"""
             SELECT id, name, age, about, email, password 
             FROM {self._table_name}
-            WHERE id = %(id)s
+            WHERE {raw_where_clause}
             """,
-            {"id": id_},
+            data,
         )
         id_, name, age, about, email, password = cursor.fetchone()
         user = User(
@@ -109,6 +111,9 @@ class UsersStorage(IUsersStorage):
         )
         cursor.close()
         return user
+
+    def get_user(self, id_: int) -> User:
+        return self._select_user(raw_where_clause="id = %(id)s", data={"id": id_})
 
     def update_user(self, id_: int, new_user: User) -> User:
         cursor = self._connection.cursor()
@@ -134,4 +139,6 @@ class UsersStorage(IUsersStorage):
         return new_user
 
     def find_user(self, email: str) -> User:
-        pass
+        return self._select_user(
+            raw_where_clause="email = %(email)s", data={"email": email}
+        )
