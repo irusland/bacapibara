@@ -14,10 +14,10 @@ from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
-from api.storage.memory.chat import ChatStorage
+from api.storage.database.chat import ChatStorage
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
-from api.storage.memory.friends import FriendsStorage
+from api.storage.database.friends import FriendsStorage
 from tests.utils import get_random_email
 
 logging.basicConfig(
@@ -57,8 +57,8 @@ class App(FastAPI):
 
 postgres_settings = PostgresSettings()
 users_storage = UsersStorage(postgres_settings=postgres_settings)
-friends_storage = FriendsStorage()
-chat_storage = ChatStorage()
+friends_storage = FriendsStorage(postgres_settings=postgres_settings)
+chat_storage = ChatStorage(postgres_settings=postgres_settings)
 
 jwt_settings = JWTSettings()
 jwt_manager = JWTManager(jwt_settings=jwt_settings)

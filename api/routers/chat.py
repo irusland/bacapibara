@@ -33,8 +33,7 @@ def _get_HTML(chat_id: int, user: User) -> str:
     <body>
         <h1>WebSocket Chat</h1>
         <div>
-        <h3>logged in as:</h3>
-        {user.name}
+        <h3>logged in as: {user.name} </h3>
         </div> 
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
