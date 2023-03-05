@@ -1,6 +1,6 @@
 from api.storage.database.base import BaseStorage
 from api.storage.database.settings import PostgresSettings
-from api.storage.friends import IFriendsStorage
+from api.storage.interface.friends import IFriendsStorage
 
 
 class FriendsStorage(BaseStorage, IFriendsStorage):

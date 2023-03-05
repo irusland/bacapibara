@@ -1,4 +1,4 @@
-from api.storage.friends import IFriendsStorage
+from api.storage.interface.friends import IFriendsStorage
 
 
 class FriendsStorage(IFriendsStorage):
