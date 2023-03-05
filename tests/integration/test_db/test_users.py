@@ -1,3 +1,4 @@
+import psycopg2
 import pytest
 
 from api.models.db.user import User
@@ -8,7 +9,27 @@ from tests.utils import get_random_email
 
 @pytest.fixture
 def users_storage(postgres_settings: PostgresSettings) -> UsersStorage:
-    return UsersStorage(postgres_settings=postgres_settings)
+    users_storage = UsersStorage(postgres_settings=postgres_settings)
+    yield users_storage
+
+    connection = psycopg2.connect(
+        host=postgres_settings.host,
+        database=postgres_settings.db,
+        user=postgres_settings.user,
+        password=postgres_settings.password,
+    )
+
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"""
+                DELETE FROM {users_storage._table_name}
+                WHERE email LIKE %(email)s;
+                """,
+                {
+                    "email": "test_%",
+                },
+            )
 
 
 class TestUsersStorage:
