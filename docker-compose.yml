@@ -1,4 +1,23 @@
+version: '3.4'
+
+x-db-variables: &db-variables
+  POSTGRES_DB: ${POSTGRES_DB:-postgres}
+  POSTGRES_USER: ${POSTGRES_USER:-irusland}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-irusland}
+  POSTGRES_HOST: ${POSTGRES_HOST:-localhost}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+
 services:
+  db:
+    image: postgres:latest
+    environment:
+      <<: *db-variables
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+    - "5432:5432"
+
   api:
     build:
       dockerfile: docker/Dockerfile
@@ -15,22 +34,10 @@ services:
     volumes:
       - ./:/app
     restart: unless-stopped
+    environment:
+      <<: *db-variables
+    depends_on:
+    - db
 
-  api2:
-    build:
-      dockerfile: docker/Dockerfile
-      context: .
-    ports:
-    - "8001:8001"
-    command:
-    - python3
-    - -m
-    - uvicorn
-    - api.main:app
-    - --host
-    - 0.0.0.0
-    - --port
-    - "8001"
-    volumes:
-      - ./:/app
-    restart: unless-stopped
+volumes:
+  postgres_data:

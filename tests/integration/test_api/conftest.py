@@ -12,7 +12,7 @@ from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
 from api.storage.chat import ChatStorage
 from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 
 
 @pytest.fixture()

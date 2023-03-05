@@ -10,7 +10,7 @@ from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.errors import NotAuthenticatedError
 from api.models.api.login_request import LoginRequest
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 
 logger = logging.getLogger(__name__)
 

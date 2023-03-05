@@ -1,8 +1,9 @@
 from api.errors import UserNotFoundError
 from api.models.db.user import User
+from api.storage.interface.users import IUsersStorage
 
 
-class UsersStorage:
+class UsersStorage(IUsersStorage):
     def __init__(self):
         self._users = {}
 

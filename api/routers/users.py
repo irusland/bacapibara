@@ -5,7 +5,7 @@ from api.models.api.new_user import NewUser
 from api.models.api.user import User as APIUser
 from api.models.db.user import User as DBUser
 from api.routers.middlewares.jwt import JWTMiddleware
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 
 
 class UsersRouter(APIRouter):

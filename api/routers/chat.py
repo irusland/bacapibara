@@ -18,7 +18,7 @@ from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
 from api.storage.chat import ChatStorage
 from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 
 logger = logging.getLogger(__name__)
 

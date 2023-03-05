@@ -11,7 +11,7 @@ from api.auth.jwt_settings import JWTSettings
 from api.errors import NotAuthorizedError
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 
 logger = logging.getLogger(__name__)
 

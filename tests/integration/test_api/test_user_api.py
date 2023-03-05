@@ -8,7 +8,7 @@ from api.models.api.login_request import LoginRequest
 from api.models.api.new_user import NewUser
 from api.models.api.user import User
 from api.models.db.user import User as DBUser
-from api.storage.users import UsersStorage
+from api.storage.memory.users import UsersStorage
 from tests.utils import AnyStr
 
 
