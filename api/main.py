@@ -17,7 +17,7 @@ from api.routers.users import UsersRouter
 from api.storage.chat import ChatStorage
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
-from api.storage.friends import FriendsStorage
+from api.storage.memory.friends import FriendsStorage
 from tests.utils import get_random_email
 
 logging.basicConfig(

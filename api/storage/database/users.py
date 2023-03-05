@@ -1,26 +1,15 @@
 from typing import Any
 
 from api.models.db.user import User
+from api.storage.database.base import BaseStorage
 from api.storage.database.settings import PostgresSettings
 from api.storage.interface.users import IUsersStorage
-import psycopg2
 
 
-class UsersStorage(IUsersStorage):
+class UsersStorage(BaseStorage, IUsersStorage):
     def __init__(self, postgres_settings: PostgresSettings):
-        self._table_name = "users"
-        self._connection = None
-        self._connection = psycopg2.connect(
-            host=postgres_settings.host,
-            database=postgres_settings.db,
-            user=postgres_settings.user,
-            password=postgres_settings.password,
-        )
+        super().__init__(table_name="users", postgres_settings=postgres_settings)
         self._init_db()
-
-    def __del__(self):
-        if self._connection is not None:
-            self._connection.close()
 
     def _init_db(self):
         create_if_not_exists_table_query = f"""
@@ -36,13 +25,6 @@ class UsersStorage(IUsersStorage):
         with self._connection:
             with self._connection.cursor() as cursor:
                 cursor.execute(create_if_not_exists_table_query)
-
-    def __len__(self) -> int:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(f"SELECT COUNT(*) FROM {self._table_name}")
-                (len_,) = cursor.fetchone()
-        return len_
 
     def create_user(self, user: User) -> User:
         with self._connection:

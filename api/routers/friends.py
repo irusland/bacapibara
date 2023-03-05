@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
-from api.storage.friends import FriendsStorage
+from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
 
 logger = logging.getLogger(__name__)
