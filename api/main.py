@@ -9,15 +9,16 @@ from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
 from api.errors import UserNotFoundError, NotAuthorizedError, NotAuthenticatedError
 from api.models.api.login_request import LoginRequest
-from api.routers import login
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
 from api.storage.chat import ChatStorage
+from api.storage.database.settings import PostgresSettings
+from api.storage.database.users import UsersStorage
 from api.storage.friends import FriendsStorage
-from api.storage.memory.users import UsersStorage
+from tests.utils import get_random_email
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -54,7 +55,8 @@ class App(FastAPI):
         return JSONResponse(str(exc), status_code=503)
 
 
-users_storage = UsersStorage()
+postgres_settings = PostgresSettings()
+users_storage = UsersStorage(postgres_settings=postgres_settings)
 friends_storage = FriendsStorage()
 chat_storage = ChatStorage()
 
@@ -103,13 +105,14 @@ app = App(
 
 
 client = TestClient(app)
+email = get_random_email()
 res = client.post(
     "/users/",
     json={
         "name": "Alice",
         "age": 0,
         "about": "string",
-        "email": "string",
+        "email": email,
         "password": "string",
     },
 )
@@ -120,18 +123,17 @@ client.post(
         "name": "Bob",
         "age": 0,
         "about": "string",
-        "email": "string2",
+        "email": get_random_email(),
         "password": "string",
     },
 )
-login_request = LoginRequest(email="string", password="string")
+login_request = LoginRequest(email=email, password="string")
 login_response = client.post("/login/", json=login_request.dict())
 print(login_response.headers)
 
 client.post(
     "/friends/add/1",
 )
-
 
 client.post(
     "/chat/start/1",

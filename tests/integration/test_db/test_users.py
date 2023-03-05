@@ -23,6 +23,26 @@ class TestUsersStorage:
         for user in users:
             assert isinstance(user, User)
 
+    def test_create_get_users(self, users_storage: UsersStorage):
+        initial_users = set(users_storage.get_users())
+        created_users = []
+        for _ in range(3):
+            user_id = len(users_storage)
+            user = User(
+                id=user_id,
+                name="irusland",
+                age=22,
+                about="its me",
+                email=get_random_email(),
+                password="pasasdasdasdasdasd",
+            )
+            created_users.append(users_storage.create_user(user))
+
+        current_users = set(users_storage.get_users())
+
+        actual_created_users = current_users.difference(initial_users)
+        assert actual_created_users == set(created_users)
+
     def test_create_user(self, users_storage: UsersStorage):
         user_id = len(users_storage)
         assert (
