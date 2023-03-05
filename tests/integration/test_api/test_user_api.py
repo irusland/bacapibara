@@ -8,7 +8,7 @@ from api.models.api.login_request import LoginRequest
 from api.models.api.new_user import NewUser
 from api.models.api.user import User
 from api.models.db.user import User as DBUser
-from api.storage.memory.users import UsersStorage
+from api.storage.interface.users import IUsersStorage
 from tests.utils import AnyStr
 
 
@@ -60,7 +60,7 @@ class TestUserAPI:
         self,
         client: TestClient,
         login_request: LoginRequest,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
         new_user: NewUser,
     ):
         client.post(
@@ -76,7 +76,7 @@ class TestUserAPI:
     def test_create_user(
         self,
         client: TestClient,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
         new_user: NewUser,
         test_user: User,
         db_user: DBUser,
@@ -93,7 +93,7 @@ class TestUserAPI:
     def test_get_user(
         self,
         client: TestClient,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
         test_user: User,
         login_request: LoginRequest,
     ):
@@ -110,7 +110,7 @@ class TestUserAPI:
     def test_update_user(
         self,
         client: TestClient,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
         new_user: NewUser,
         login_request: LoginRequest,
     ):

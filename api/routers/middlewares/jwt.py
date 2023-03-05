@@ -1,6 +1,6 @@
 import enum
 import logging
-from typing import List, Any
+from typing import List
 
 from fastapi import HTTPException, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -11,7 +11,7 @@ from api.auth.jwt_settings import JWTSettings
 from api.errors import NotAuthorizedError
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
-from api.storage.memory.users import UsersStorage
+from api.storage.interface.users import IUsersStorage
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class JWTMiddleware:
         jwt_bearer: JWTBearer,
         jwt_cookie: JWTCookie,
         jwt_settings: JWTSettings,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
     ):
         self._jwt_manager = jwt_manager
         self._jwt_bearer = jwt_bearer
