@@ -74,7 +74,7 @@ app = App(
 
 client = TestClient(app)
 email = get_random_email()
-res = client.post(
+user_creation_res = client.post(
     "/users/",
     json={
         "name": "Alice",
@@ -85,7 +85,7 @@ res = client.post(
     },
 )
 
-client.post(
+friend_creation_res = client.post(
     "/users/",
     json={
         "name": "Bob",
@@ -99,10 +99,11 @@ login_request = LoginRequest(email=email, password="string")
 login_response = client.post("/login/", json=login_request.dict())
 print(login_response.headers)
 
+friend_user_id = friend_creation_res.json()
 client.post(
-    "/friends/add/1",
+    f"/friends/add/{friend_user_id}",
 )
 
 client.post(
-    "/chat/start/1",
+    f"/chat/start/{friend_user_id}",
 )
