@@ -4,8 +4,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from api.models.api.login_request import LoginRequest
-from api.storage.memory.chat import ChatStorage
-from api.storage.memory.friends import FriendsStorage
+from api.storage.interface.chat import IChatStorage
 
 
 @pytest.fixture()
@@ -36,7 +35,7 @@ class TestChatAPI:
         client: TestClient,
         user_id: int,
         friend_id: int,
-        chat_storage: ChatStorage,
+        chat_storage: IChatStorage,
         prepare_users,
     ):
         client.post(

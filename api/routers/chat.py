@@ -16,8 +16,8 @@ from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
 from api.storage.interface.users import IUsersStorage
-from api.storage.memory.chat import ChatStorage
-from api.storage.memory.friends import FriendsStorage
+from api.storage.interface.chat import IChatStorage
+from api.storage.interface.friends import IFriendsStorage
 
 logger = logging.getLogger(__name__)
 
@@ -65,11 +65,11 @@ class ChatRouter(APIRouter):
     def __init__(
         self,
         users_storage: IUsersStorage,
-        friends_storage: FriendsStorage,
+        friends_storage: IFriendsStorage,
         jwt_manager: JWTManager,
         jwt_settings: JWTSettings,
         jwt_middleware: JWTMiddleware,
-        chat_storage: ChatStorage,
+        chat_storage: IChatStorage,
         web_socket_connection_manager: WebSocketConnectionManager,
     ):
         super().__init__()
