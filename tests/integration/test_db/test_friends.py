@@ -10,7 +10,9 @@ from tests.utils import get_random_email
 
 
 @pytest.fixture
-def friends_storage(postgres_settings: PostgresSettings, users_storage: UsersStorage) -> FriendsStorage:
+def friends_storage(
+    postgres_settings: PostgresSettings, users_storage: UsersStorage
+) -> FriendsStorage:
     friends_storage = FriendsStorage(postgres_settings=postgres_settings)
     yield friends_storage
 
