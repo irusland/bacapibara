@@ -16,13 +16,14 @@ class UsersStorage(BaseStorage, IUsersStorage):
         create_if_not_exists_table_query = f"""
         CREATE TABLE IF NOT EXISTS {self._table_name} (
             id integer NOT NULL PRIMARY KEY,
-            name varchar(45) NOT NULL,
+            name text NOT NULL,
             age integer NOT NULL,
-            about varchar(450) NOT NULL,
-            email varchar(45) NOT NULL UNIQUE,
-            password varchar(450) NOT NULL,
-            last_login timestamp DEFAULT now()
+            about text NOT NULL,
+            email text NOT NULL UNIQUE,
+            password text NOT NULL,
+            last_login timestamp NOT NULL DEFAULT now()
         );
+        CREATE INDEX IF NOT EXISTS users_last_login_id_name_desc_index ON users (last_login, id, name DESC);
         """
         with self._connection:
             with self._connection.cursor() as cursor:
