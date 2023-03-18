@@ -39,6 +39,30 @@ make format
 make test
 ```
 
+
+## Running in docker
+
+```shell
+make docker-build
+make docker-up
+```
+
+## Running in docker-compose
+
+```shell
+minikube start
+eval $(minikube docker-env)
+make kube-run
+```
+
+To access the pod, forward the ports
+
+```shell
+kubectl port-forward bacapibara-api 8000
+```
+
+and checkout http://127.0.0.1:8000/docs#/
+
 ## Credits 
 
 [Ruslan Sirazhetdinov - @irusland](https://github.com/irusland)
