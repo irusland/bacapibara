@@ -10,7 +10,7 @@ from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.errors import NotAuthenticatedError
 from api.models.api.login_request import LoginRequest
-from api.storage.users import UsersStorage
+from api.storage.interface.users import IUsersStorage
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class LoginRouter(APIRouter):
     def __init__(
         self,
-        users_storage: UsersStorage,
+        users_storage: IUsersStorage,
         jwt_manager: JWTManager,
         jwt_settings: JWTSettings,
     ):

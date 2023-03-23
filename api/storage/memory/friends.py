@@ -1,4 +1,7 @@
-class FriendsStorage:
+from api.storage.interface.friends import IFriendsStorage
+
+
+class FriendsStorage(IFriendsStorage):
     def __init__(self):
         self._friends = set()
 

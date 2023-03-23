@@ -4,15 +4,15 @@ from starlette.testclient import TestClient
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
-from api.main import App
+from api.app import App
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
-from api.storage.chat import ChatStorage
-from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.memory.chat import ChatStorage
+from api.storage.memory.friends import FriendsStorage
+from api.storage.memory.users import UsersStorage
 
 
 @pytest.fixture()

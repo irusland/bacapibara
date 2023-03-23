@@ -39,4 +39,4 @@ jobs:
         poetry run python -m black . --check
     - name: Test with pytest
       run: |
-        poetry run python -m pytest -v
+        poetry run python -m pytest -v --ignore-glob='*test_db*'

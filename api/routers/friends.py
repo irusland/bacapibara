@@ -2,11 +2,10 @@ import logging
 
 from fastapi import APIRouter, Depends
 
-from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
-from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.interface.friends import IFriendsStorage
+from api.storage.interface.users import IUsersStorage
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +13,8 @@ logger = logging.getLogger(__name__)
 class FriendsRouter(APIRouter):
     def __init__(
         self,
-        friends_storage: FriendsStorage,
-        users_storage: UsersStorage,
+        friends_storage: IFriendsStorage,
+        users_storage: IUsersStorage,
         jwt_middleware: JWTMiddleware,
     ):
         super().__init__()

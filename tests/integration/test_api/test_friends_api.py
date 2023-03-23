@@ -4,7 +4,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from api.models.api.login_request import LoginRequest
-from api.storage.friends import FriendsStorage
+from api.storage.interface.friends import IFriendsStorage
 
 
 @pytest.fixture()
@@ -35,7 +35,7 @@ class TestFriendAPI:
         client: TestClient,
         user_id: int,
         friend_id: int,
-        friends_storage: FriendsStorage,
+        friends_storage: IFriendsStorage,
         prepare_users,
     ):
         client.post(
@@ -63,7 +63,7 @@ class TestFriendAPI:
         client: TestClient,
         user_id: int,
         friend_id: int,
-        friends_storage: FriendsStorage,
+        friends_storage: IFriendsStorage,
         prepare_users,
     ):
         client.post(

@@ -1,12 +1,11 @@
 import logging
-from typing import Union
 
-from fastapi import APIRouter, Depends, Cookie
-from fastapi import HTTPException, Response, Request
+from fastapi import APIRouter, Depends
+from fastapi import HTTPException
 from fastapi import WebSocket
 from fastapi.responses import HTMLResponse
 from starlette import status
-from starlette.responses import RedirectResponse, FileResponse
+from starlette.responses import RedirectResponse
 from starlette.websockets import WebSocketDisconnect
 from websockets.exceptions import WebSocketException
 
@@ -16,9 +15,9 @@ from api.connection.web_socket_connection_manager import WebSocketConnectionMana
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
-from api.storage.chat import ChatStorage
-from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.interface.users import IUsersStorage
+from api.storage.interface.chat import IChatStorage
+from api.storage.interface.friends import IFriendsStorage
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +32,7 @@ def _get_HTML(chat_id: int, user: User) -> str:
     <body>
         <h1>WebSocket Chat</h1>
         <div>
-        <h3>logged in as:</h3>
-        {user.name}
+        <h3>logged in as: {user.name} </h3>
         </div> 
         <form action="" onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
@@ -66,12 +64,12 @@ def _get_HTML(chat_id: int, user: User) -> str:
 class ChatRouter(APIRouter):
     def __init__(
         self,
-        users_storage: UsersStorage,
-        friends_storage: FriendsStorage,
+        users_storage: IUsersStorage,
+        friends_storage: IFriendsStorage,
         jwt_manager: JWTManager,
         jwt_settings: JWTSettings,
         jwt_middleware: JWTMiddleware,
-        chat_storage: ChatStorage,
+        chat_storage: IChatStorage,
         web_socket_connection_manager: WebSocketConnectionManager,
     ):
         super().__init__()

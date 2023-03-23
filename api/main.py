@@ -1,62 +1,32 @@
 import logging
 
-from fastapi import FastAPI
-from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 
+from api.app import App
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
-from api.errors import UserNotFoundError, NotAuthorizedError, NotAuthenticatedError
 from api.models.api.login_request import LoginRequest
-from api.routers import login
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
-from api.storage.chat import ChatStorage
-from api.storage.friends import FriendsStorage
-from api.storage.users import UsersStorage
+from api.storage.database.chat import ChatStorage
+from api.storage.database.settings import PostgresSettings
+from api.storage.database.users import UsersStorage
+from api.storage.database.friends import FriendsStorage
+from tests.utils import get_random_email
 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(levelname)s: [%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} - %(message)s",
 )
 
-
-class App(FastAPI):
-    def __init__(
-        self,
-        users_router: UsersRouter,
-        friends_router: FriendsRouter,
-        login_router: LoginRouter,
-        chat_router: ChatRouter,
-    ):
-        super().__init__()
-        self.include_router(users_router)
-        self.include_router(friends_router)
-        self.include_router(login_router)
-        self.include_router(chat_router)
-
-        self.exception_handler(UserNotFoundError)(self._user_not_found_handler_error)
-        self.exception_handler(NotAuthorizedError)(self._bad_auth_error)
-        self.exception_handler(NotAuthenticatedError)(self._bad_auth_error)
-        self.exception_handler(Exception)(self._server_error)
-
-    async def _user_not_found_handler_error(self, request, exc):
-        return JSONResponse(str(exc), status_code=404)
-
-    async def _bad_auth_error(self, request, exc):
-        return JSONResponse(str(exc), status_code=401)
-
-    async def _server_error(self, request, exc):
-        return JSONResponse(str(exc), status_code=503)
-
-
-users_storage = UsersStorage()
-friends_storage = FriendsStorage()
-chat_storage = ChatStorage()
+postgres_settings = PostgresSettings()
+users_storage = UsersStorage(postgres_settings=postgres_settings)
+friends_storage = FriendsStorage(postgres_settings=postgres_settings)
+chat_storage = ChatStorage(postgres_settings=postgres_settings)
 
 jwt_settings = JWTSettings()
 jwt_manager = JWTManager(jwt_settings=jwt_settings)
@@ -103,36 +73,37 @@ app = App(
 
 
 client = TestClient(app)
-res = client.post(
+email = get_random_email()
+user_creation_res = client.post(
     "/users/",
     json={
         "name": "Alice",
         "age": 0,
         "about": "string",
-        "email": "string",
+        "email": email,
         "password": "string",
     },
 )
 
-client.post(
+friend_creation_res = client.post(
     "/users/",
     json={
         "name": "Bob",
         "age": 0,
         "about": "string",
-        "email": "string2",
+        "email": get_random_email(),
         "password": "string",
     },
 )
-login_request = LoginRequest(email="string", password="string")
+login_request = LoginRequest(email=email, password="string")
 login_response = client.post("/login/", json=login_request.dict())
 print(login_response.headers)
 
+friend_user_id = friend_creation_res.json()
 client.post(
-    "/friends/add/1",
+    f"/friends/add/{friend_user_id}",
 )
 
-
 client.post(
-    "/chat/start/1",
+    f"/chat/start/{friend_user_id}",
 )
