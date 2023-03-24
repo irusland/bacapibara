@@ -71,9 +71,14 @@ create migration
 alembic revision --autogenerate -m "message"
 ```
 
-run migration
+run migrations
 ```commandline
-alembic upgrade head
+make upgrade
+```
+
+rollback single migration
+```commandline
+make downgrade
 ```
 
 ## Credits 
