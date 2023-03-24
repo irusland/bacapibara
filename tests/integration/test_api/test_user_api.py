@@ -84,7 +84,7 @@ class TestUserAPI:
     ):
         expected_user = db_user
 
-        res = client.post("/users", json=new_user.dict())
+        res = client.post("/users", json=new_user.dict(), allow_redirects=True)
 
         assert res.status_code == HTTPStatus.OK
         assert res.json() == expected_user.id

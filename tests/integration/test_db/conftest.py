@@ -1,6 +1,7 @@
 import psycopg2
 import pytest
 
+from api.app import DatabaseManager
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 
@@ -8,6 +9,11 @@ from api.storage.database.users import UsersStorage
 @pytest.fixture()
 def postgres_settings() -> PostgresSettings:
     return PostgresSettings()
+
+
+@pytest.fixture()
+def database_manager(postgres_settings: PostgresSettings) -> DatabaseManager:
+    return DatabaseManager(postgres_settings=postgres_settings)
 
 
 @pytest.fixture

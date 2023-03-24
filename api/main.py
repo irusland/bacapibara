@@ -1,8 +1,9 @@
 import logging
+import time
 
 from starlette.testclient import TestClient
 
-from api.app import App
+from api.app import App, DatabaseManager
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
@@ -24,9 +25,10 @@ logging.basicConfig(
 )
 
 postgres_settings = PostgresSettings()
+database_manager = DatabaseManager(postgres_settings=postgres_settings)
 users_storage = UsersStorage(postgres_settings=postgres_settings)
 friends_storage = FriendsStorage(postgres_settings=postgres_settings)
-chat_storage = ChatStorage(postgres_settings=postgres_settings)
+chat_storage = ChatStorage(database_manager=database_manager)
 
 jwt_settings = JWTSettings()
 jwt_manager = JWTManager(jwt_settings=jwt_settings)
@@ -69,41 +71,5 @@ app = App(
     friends_router=friends_router,
     login_router=login_router,
     chat_router=chat_router,
-)
-
-
-client = TestClient(app)
-email = get_random_email()
-user_creation_res = client.post(
-    "/users/",
-    json={
-        "name": "Alice",
-        "age": 0,
-        "about": "string",
-        "email": email,
-        "password": "string",
-    },
-)
-
-friend_creation_res = client.post(
-    "/users/",
-    json={
-        "name": "Bob",
-        "age": 0,
-        "about": "string",
-        "email": get_random_email(),
-        "password": "string",
-    },
-)
-login_request = LoginRequest(email=email, password="string")
-login_response = client.post("/login/", json=login_request.dict())
-print(login_response.headers)
-
-friend_user_id = friend_creation_res.json()
-client.post(
-    f"/friends/add/{friend_user_id}",
-)
-
-client.post(
-    f"/chat/start/{friend_user_id}",
+    database_manager=database_manager,
 )
