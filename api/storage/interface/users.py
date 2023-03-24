@@ -28,3 +28,7 @@ class IUsersStorage(ABC):
     @abc.abstractmethod
     def find_user(self, email: str) -> User:
         raise NotImplementedError()
+
+    @abc.abstractmethod
+    def on_user_login(self, user: User) -> None:
+        raise NotImplementedError()

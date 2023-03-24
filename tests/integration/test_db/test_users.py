@@ -1,35 +1,6 @@
-import psycopg2
-import pytest
-
 from api.models.db.user import User
-from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 from tests.utils import get_random_email
-
-
-@pytest.fixture
-def users_storage(postgres_settings: PostgresSettings) -> UsersStorage:
-    users_storage = UsersStorage(postgres_settings=postgres_settings)
-    yield users_storage
-
-    connection = psycopg2.connect(
-        host=postgres_settings.host,
-        database=postgres_settings.db,
-        user=postgres_settings.user,
-        password=postgres_settings.password,
-    )
-
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                f"""
-                DELETE FROM {users_storage._table_name}
-                WHERE email LIKE %(email)s;
-                """,
-                {
-                    "email": "test_%",
-                },
-            )
 
 
 class TestUsersStorage:
@@ -175,3 +146,21 @@ class TestUsersStorage:
         assert actual_user.about == user.about
         assert actual_user.email == user.email
         assert actual_user.password == user.password
+
+    def test_on_user_login(self, users_storage: UsersStorage):
+        user = User(
+            id=len(users_storage),
+            name="irusland",
+            age=22,
+            about="its me",
+            email=get_random_email(),
+            password="pasasdasdasdasdasd",
+        )
+        users_storage.create_user(user=user)
+        initial_last_login = users_storage.get_user(id_=user.id).last_login
+        assert initial_last_login
+
+        users_storage.on_user_login(user)
+
+        actual_last_login = users_storage.get_user(id_=user.id).last_login
+        assert actual_last_login != initial_last_login
