@@ -17,7 +17,9 @@ def database_manager(postgres_settings: PostgresSettings) -> DatabaseManager:
 
 
 @pytest.fixture
-def users_storage(postgres_settings: PostgresSettings, database_manager: DatabaseManager) -> UsersStorage:
+def users_storage(
+    postgres_settings: PostgresSettings, database_manager: DatabaseManager
+) -> UsersStorage:
     users_storage = UsersStorage(database_manager=database_manager)
     yield users_storage
 

@@ -14,7 +14,6 @@ from api.storage.database.settings import PostgresSettings
 
 class DatabaseManager:
     def __init__(self, postgres_settings: PostgresSettings):
-
         self.engine = create_async_engine(
             postgres_settings.connect_url,
             echo=True,

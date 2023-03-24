@@ -18,8 +18,18 @@ class Users(Base):
     about: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
-    last_login: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
-    __table_args__ = (Index('last_login_id_name_index', 'last_login', 'id', 'name', postgresql_ops={'name': 'DESC'},),)
+    last_login: Mapped[datetime] = mapped_column(
+        nullable=False, server_default=func.now()
+    )
+    __table_args__ = (
+        Index(
+            "last_login_id_name_index",
+            "last_login",
+            "id",
+            "name",
+            postgresql_ops={"name": "DESC"},
+        ),
+    )
 
 
 class UsersStorage(IUsersStorage):
@@ -70,7 +80,9 @@ class UsersStorage(IUsersStorage):
 
     async def _select_user(self, where_clause: Any) -> User:
         async with self._database_manager.async_session() as session:
-            db_user = (await session.execute(select(Users).where(where_clause))).fetchone()
+            db_user = (
+                await session.execute(select(Users).where(where_clause))
+            ).fetchone()
             if not db_user:
                 raise UserNotFoundError(f"User was not found")
             db_user = db_user.Users

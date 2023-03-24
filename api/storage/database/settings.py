@@ -9,7 +9,7 @@ class PostgresSettings(BaseSettings):
     host: str
     port: int = 5432
     driver: str = "postgresql+asyncpg"
-    
+
     @property
     def connect_url(self) -> URL:
         return URL(

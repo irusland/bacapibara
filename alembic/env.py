@@ -74,7 +74,7 @@ async def run_async_migrations() -> None:
 
     alembic_config = config.get_section(config.config_ini_section)
     db_url = PostgresSettings().connect_url.render_as_string(hide_password=False)
-    alembic_config['sqlalchemy.url'] = db_url
+    alembic_config["sqlalchemy.url"] = db_url
     connectable = async_engine_from_config(
         alembic_config,
         prefix="sqlalchemy.",
@@ -97,4 +97,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

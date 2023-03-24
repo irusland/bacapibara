@@ -31,9 +31,9 @@ class TestUsersStorage:
                 email=get_random_email(),
                 password="pasasdasdasdasdasd",
             )
-            print(f'>>> {await users_storage.get_users()=}')
-            print(f'>>> {user=}')
-            print(f'>>> {await users_storage.size()=}')
+            print(f">>> {await users_storage.get_users()=}")
+            print(f">>> {user=}")
+            print(f">>> {await users_storage.size()=}")
             created_users.append(await users_storage.create_user(user))
 
         current_users = set(await users_storage.get_users())
@@ -114,9 +114,11 @@ class TestUsersStorage:
             password="qwerty",
         )
         await users_storage.create_user(user=user)
-        print(f'>>> GET {await users_storage.get_user(id_=user_id)=}')
-        assert await users_storage.update_user(id_=user_id, new_user=new_user) is not None
-        print(f'>>> GET {await users_storage.get_user(id_=user_id)=}')
+        print(f">>> GET {await users_storage.get_user(id_=user_id)=}")
+        assert (
+            await users_storage.update_user(id_=user_id, new_user=new_user) is not None
+        )
+        print(f">>> GET {await users_storage.get_user(id_=user_id)=}")
 
         actual_user = await users_storage.get_user(id_=user_id)
         assert actual_user is not None

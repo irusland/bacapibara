@@ -10,6 +10,7 @@ class Base(object):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
+
     id: Mapped[int] = mapped_column(primary_key=True)
 
 

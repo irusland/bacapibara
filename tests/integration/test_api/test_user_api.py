@@ -86,7 +86,9 @@ class TestUserAPI:
     ):
         expected_user = db_user
 
-        res = await async_client.post("/users", json=new_user.dict(), follow_redirects=True)
+        res = await async_client.post(
+            "/users", json=new_user.dict(), follow_redirects=True
+        )
 
         assert res.status_code == HTTPStatus.OK
         assert res.json() == expected_user.id
