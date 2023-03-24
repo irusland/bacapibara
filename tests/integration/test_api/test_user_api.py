@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+import unittest.mock
 from http import HTTPStatus
 
 import pytest
@@ -139,16 +139,3 @@ class TestUserAPI:
                 password=new_user.password,
             )
         ]
-
-    def test_triggers_on_user_login(
-        self,
-        client: TestClient,
-        users_storage: IUsersStorage,
-        new_user: NewUser,
-        login_request: LoginRequest,
-    ):
-        users_storage.on_user_login = Mock(wraps=users_storage.on_user_login)
-        client.post("/users/", json=new_user.dict())
-        client.post("/login/", json=login_request.dict())
-
-        users_storage.on_user_login.assert_called()

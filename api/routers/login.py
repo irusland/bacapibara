@@ -36,7 +36,6 @@ class LoginRouter(APIRouter):
                     expires=datetime.datetime.now(tz=UTC)
                     + jwt_settings.session_cookie_expires,
                 )
-                users_storage.on_user_login(user=user)
                 return {"message": f"User {user} was authenticated"}
             logger.info("User entered wrong password")
             raise NotAuthenticatedError()

@@ -47,6 +47,3 @@ class UsersStorage(IUsersStorage):
                 return user
 
         raise UserNotFoundError(f"User was not found")
-
-    def on_user_login(self, user: User) -> None:
-        pass

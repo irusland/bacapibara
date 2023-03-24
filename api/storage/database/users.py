@@ -1,6 +1,5 @@
 from typing import Any
 
-from api.errors import UserNotFoundError
 from api.models.db.user import User
 from api.storage.database.base import BaseStorage
 from api.storage.database.settings import PostgresSettings
@@ -16,14 +15,12 @@ class UsersStorage(BaseStorage, IUsersStorage):
         create_if_not_exists_table_query = f"""
         CREATE TABLE IF NOT EXISTS {self._table_name} (
             id integer NOT NULL PRIMARY KEY,
-            name text NOT NULL,
+            name varchar(45) NOT NULL,
             age integer NOT NULL,
-            about text NOT NULL,
-            email text NOT NULL UNIQUE,
-            password text NOT NULL,
-            last_login timestamp NOT NULL DEFAULT now()
+            about varchar(450) NOT NULL,
+            email varchar(45) NOT NULL UNIQUE,
+            password varchar(450) NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS users_last_login_id_name_desc_index ON users (last_login, id, name DESC);
         """
         with self._connection:
             with self._connection.cursor() as cursor:
@@ -77,16 +74,13 @@ class UsersStorage(BaseStorage, IUsersStorage):
             with self._connection.cursor() as cursor:
                 cursor.execute(
                     f"""
-                    SELECT id, name, age, about, email, password, last_login
+                    SELECT id, name, age, about, email, password 
                     FROM {self._table_name}
                     WHERE {raw_where_clause}
                     """,
                     data,
                 )
-                fetched = cursor.fetchone()
-                if not fetched:
-                    raise UserNotFoundError(f"User was not found")
-                id_, name, age, about, email, password, last_login = fetched
+                id_, name, age, about, email, password = cursor.fetchone()
         user = User(
             id=id_,
             name=name,
@@ -94,7 +88,6 @@ class UsersStorage(BaseStorage, IUsersStorage):
             about=about,
             email=email,
             password=password,
-            last_login=last_login,
         )
         cursor.close()
         return user
@@ -130,21 +123,3 @@ class UsersStorage(BaseStorage, IUsersStorage):
         return self._select_user(
             raw_where_clause="email = %(email)s", data={"email": email}
         )
-
-    def on_user_login(self, user: User) -> None:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    UPDATE {self._table_name} 
-                    SET last_login = NOW()
-                    WHERE id = %(id)s
-                    """,
-                    {
-                        "id": user.id,
-                    },
-                )
-                print(cursor.rowcount)
-                self._connection.commit()
-                cursor.close()
-                print(cursor.rowcount)
