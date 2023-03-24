@@ -27,7 +27,7 @@ logging.basicConfig(
 postgres_settings = PostgresSettings()
 database_manager = DatabaseManager(postgres_settings=postgres_settings)
 users_storage = UsersStorage(database_manager=database_manager)
-friends_storage = FriendsStorage(postgres_settings=postgres_settings)
+friends_storage = FriendsStorage(database_manager=database_manager)
 chat_storage = ChatStorage(database_manager=database_manager)
 
 jwt_settings = JWTSettings()

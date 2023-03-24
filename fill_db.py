@@ -4,6 +4,7 @@ from uuid import uuid4
 import faker as faker
 import tqdm as tqdm
 
+from api.app import DatabaseManager
 from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.settings import PostgresSettings
@@ -12,8 +13,9 @@ from api.storage.database.users import UsersStorage
 fake = faker.Faker()
 
 postgres_settings = PostgresSettings()
-users_storage = UsersStorage(postgres_settings=postgres_settings)
-friends_storage = FriendsStorage(postgres_settings=postgres_settings)
+database_manager = DatabaseManager(postgres_settings=postgres_settings)
+users_storage = UsersStorage(database_manager=database_manager)
+friends_storage = FriendsStorage(database_manager=database_manager)
 
 batch_size = 1000
 batch_count = 1000
