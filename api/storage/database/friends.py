@@ -14,7 +14,9 @@ class FriendsStorage(BaseStorage, IFriendsStorage):
             id SERIAL NOT NULL PRIMARY KEY,
             user_id integer NOT NULL,
             friend_id integer NOT NULL,
-            UNIQUE (user_id, friend_id)
+            UNIQUE (user_id, friend_id),
+            CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+            CONSTRAINT fk_friend_id FOREIGN KEY (friend_id) REFERENCES users (id)
         );
         """
         with self._connection:
