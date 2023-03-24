@@ -62,6 +62,7 @@ kube-run:
 upgrade:
 	alembic upgrade head
 
+
 .PHONY: downgrade
 downgrade:
 	alembic downgrade -1

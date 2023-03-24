@@ -43,7 +43,7 @@ def _create_users(users_storage: UsersStorage, users_to_create: list[User]):
 
 
 def create_users():
-    current_user_id = len(users_storage)
+    current_user_id = users_storage.size()
     if current_user_id >= batch_count * batch_size:
         return
     for c in tqdm.trange(batch_count):
@@ -81,7 +81,7 @@ def create_friends():
     if current_friends_count >= batch_count * batch_size:
         return
 
-    current_users_count = len(users_storage)
+    current_users_count = users_storage.size()
     current_friends_count += 1
     for c in tqdm.trange(batch_count):
         friends_to_create = []

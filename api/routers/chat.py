@@ -85,7 +85,7 @@ class ChatRouter(APIRouter):
                 jwt_middleware.get_user_credentials()
             ),
         ):
-            user = users_storage.get_user(credentials.id)
+            user = await users_storage.get_user(credentials.id)
             logger.debug("user %s starting a chat", user)
             friends_ids = friends_storage.get_friends_for(id=user.id)
             if friend_id not in friends_ids:

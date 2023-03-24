@@ -22,10 +22,8 @@ class DatabaseManager:
         self.async_session = async_sessionmaker(self.engine, expire_on_commit=False)
 
     async def connect(self):
-        print(f">>> startup start")
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print(f">>> startup end")
 
     async def disconnect(self):
         await self.engine.dispose()

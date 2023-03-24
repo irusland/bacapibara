@@ -1,10 +1,8 @@
-from sqlalchemy import UniqueConstraint, func
-
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Mapped, Session
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import selectinload
 
 from api.app import DatabaseManager
 from api.models.api.chat import Chat

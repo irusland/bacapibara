@@ -2,6 +2,7 @@ from unittest.mock import Mock
 from http import HTTPStatus
 
 import pytest
+from httpx import AsyncClient
 from starlette.testclient import TestClient
 
 from api.models.api.login_request import LoginRequest
@@ -55,6 +56,7 @@ def login_request(test_user: User) -> LoginRequest:
     )
 
 
+@pytest.mark.asyncio
 class TestUserAPI:
     def test_get_users(
         self,
@@ -73,9 +75,9 @@ class TestUserAPI:
 
         assert res.status_code == HTTPStatus.OK
 
-    def test_create_user(
+    async def test_create_user(
         self,
-        client: TestClient,
+        async_client: AsyncClient,
         users_storage: IUsersStorage,
         new_user: NewUser,
         test_user: User,
@@ -84,11 +86,11 @@ class TestUserAPI:
     ):
         expected_user = db_user
 
-        res = client.post("/users", json=new_user.dict(), allow_redirects=True)
+        res = await async_client.post("/users", json=new_user.dict(), follow_redirects=True)
 
         assert res.status_code == HTTPStatus.OK
         assert res.json() == expected_user.id
-        assert users_storage.get_users() == [expected_user]
+        assert await users_storage.get_users() == [expected_user]
 
     def test_get_user(
         self,
@@ -107,15 +109,15 @@ class TestUserAPI:
         assert res.status_code == HTTPStatus.OK
         assert User.parse_obj(res.json()) == expected_user
 
-    def test_update_user(
+    async def test_update_user(
         self,
-        client: TestClient,
+        async_client: AsyncClient,
         users_storage: IUsersStorage,
         new_user: NewUser,
         login_request: LoginRequest,
     ):
-        client.post("/users/", json=new_user.dict())
-        client.post("/login/", json=login_request.dict())
+        await async_client.post("/users/", json=new_user.dict())
+        await async_client.post("/login/", json=login_request.dict())
         new_user = User(
             id=0,
             name="england",
@@ -126,10 +128,10 @@ class TestUserAPI:
         )
         user_id = new_user.id
 
-        res = client.put(f"/users/{user_id}", json=new_user.dict())
+        res = await async_client.put(f"/users/{user_id}", json=new_user.dict())
 
         assert res.status_code == HTTPStatus.OK
-        assert users_storage.get_users() == [
+        assert await users_storage.get_users() == [
             DBUser(
                 id=new_user.id,
                 name=new_user.name,

@@ -9,6 +9,8 @@ from alembic import context
 
 from api.storage.database.base import Base
 from api.storage.database.chat import Chats
+from api.storage.database.users import Users
+
 from api.storage.database.settings import PostgresSettings
 
 # this is the Alembic Config object, which provides

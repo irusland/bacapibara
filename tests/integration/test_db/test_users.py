@@ -1,25 +1,28 @@
+import pytest
+
 from api.models.db.user import User
 from api.storage.database.users import UsersStorage
 from tests.utils import get_random_email
 
 
+@pytest.mark.asyncio
 class TestUsersStorage:
-    def test_count(self, users_storage: UsersStorage):
-        assert len(users_storage) is not None
+    async def test_count(self, users_storage: UsersStorage):
+        assert await users_storage.size() is not None
 
-    def test_get_users(self, users_storage: UsersStorage):
-        users = users_storage.get_users()
+    async def test_get_users(self, users_storage: UsersStorage):
+        users = await users_storage.get_users()
 
         assert users is not None
         assert isinstance(users, list)
         for user in users:
             assert isinstance(user, User)
 
-    def test_create_get_users(self, users_storage: UsersStorage):
-        initial_users = set(users_storage.get_users())
+    async def test_create_get_users(self, users_storage: UsersStorage):
+        initial_users = set(await users_storage.get_users())
         created_users = []
         for _ in range(3):
-            user_id = len(users_storage)
+            user_id = await users_storage.size()
             user = User(
                 id=user_id,
                 name="irusland",
@@ -28,15 +31,18 @@ class TestUsersStorage:
                 email=get_random_email(),
                 password="pasasdasdasdasdasd",
             )
-            created_users.append(users_storage.create_user(user))
+            print(f'>>> {await users_storage.get_users()=}')
+            print(f'>>> {user=}')
+            print(f'>>> {await users_storage.size()=}')
+            created_users.append(await users_storage.create_user(user))
 
-        current_users = set(users_storage.get_users())
+        current_users = set(await users_storage.get_users())
 
         actual_created_users = current_users.difference(initial_users)
         assert actual_created_users == set(created_users)
 
-    def test_create_user(self, users_storage: UsersStorage):
-        user_id = len(users_storage)
+    async def test_create_user(self, users_storage: UsersStorage):
+        user_id = await users_storage.size()
         assert (
             users_storage.create_user(
                 user=User(
@@ -51,8 +57,8 @@ class TestUsersStorage:
             is not None
         )
 
-    def test_create_and_get_user(self, users_storage: UsersStorage):
-        user_id = len(users_storage)
+    async def test_create_and_get_user(self, users_storage: UsersStorage):
+        user_id = await users_storage.size()
         user = User(
             id=user_id,
             name="irusland",
@@ -61,9 +67,9 @@ class TestUsersStorage:
             email=get_random_email(),
             password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(user=user)
+        await users_storage.create_user(user=user)
 
-        actual_user = users_storage.get_user(id_=user_id)
+        actual_user = await users_storage.get_user(id_=user_id)
 
         assert actual_user is not None
         assert actual_user.id == user.id
@@ -73,8 +79,8 @@ class TestUsersStorage:
         assert actual_user.email == user.email
         assert actual_user.password == user.password
 
-    def test_create_user_length_increases(self, users_storage: UsersStorage):
-        initial_count = len(users_storage)
+    async def test_create_user_length_increases(self, users_storage: UsersStorage):
+        initial_count = await users_storage.size()
         user = User(
             id=initial_count,
             name="irusland",
@@ -83,14 +89,14 @@ class TestUsersStorage:
             email=get_random_email(),
             password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(user=user)
+        await users_storage.create_user(user=user)
 
-        actual_count = len(users_storage)
+        actual_count = await users_storage.size()
 
         assert actual_count == initial_count + 1
 
-    def test_create_user_update(self, users_storage: UsersStorage):
-        user_id = len(users_storage)
+    async def test_create_user_update(self, users_storage: UsersStorage):
+        user_id = await users_storage.size()
         user = User(
             id=user_id,
             name="irusland",
@@ -107,17 +113,12 @@ class TestUsersStorage:
             email=get_random_email(),
             password="qwerty",
         )
-        users_storage.create_user(user=user)
+        await users_storage.create_user(user=user)
+        print(f'>>> GET {await users_storage.get_user(id_=user_id)=}')
+        assert await users_storage.update_user(id_=user_id, new_user=new_user) is not None
+        print(f'>>> GET {await users_storage.get_user(id_=user_id)=}')
 
-        assert (
-            users_storage.update_user(
-                id_=user_id,
-                new_user=new_user,
-            )
-            is not None
-        )
-
-        actual_user = users_storage.get_user(id_=user_id)
+        actual_user = await users_storage.get_user(id_=user_id)
         assert actual_user is not None
         assert actual_user.id == user.id
         assert actual_user.name == new_user.name
@@ -126,18 +127,18 @@ class TestUsersStorage:
         assert actual_user.email == new_user.email
         assert actual_user.password == new_user.password
 
-    def test_find_user(self, users_storage: UsersStorage):
+    async def test_find_user(self, users_storage: UsersStorage):
         user = User(
-            id=len(users_storage),
+            id=await users_storage.size(),
             name="irusland",
             age=22,
             about="its me",
             email=get_random_email(),
             password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(user=user)
+        await users_storage.create_user(user=user)
 
-        actual_user = users_storage.find_user(email=user.email)
+        actual_user = await users_storage.find_user(email=user.email)
 
         assert actual_user is not None
         assert actual_user.id == user.id
@@ -147,20 +148,20 @@ class TestUsersStorage:
         assert actual_user.email == user.email
         assert actual_user.password == user.password
 
-    def test_on_user_login(self, users_storage: UsersStorage):
+    async def test_on_user_login(self, users_storage: UsersStorage):
         user = User(
-            id=len(users_storage),
+            id=await users_storage.size(),
             name="irusland",
             age=22,
             about="its me",
             email=get_random_email(),
             password="pasasdasdasdasdasd",
         )
-        users_storage.create_user(user=user)
-        initial_last_login = users_storage.get_user(id_=user.id).last_login
+        await users_storage.create_user(user=user)
+        initial_last_login = (await users_storage.get_user(id_=user.id)).last_login
         assert initial_last_login
 
-        users_storage.on_user_login(user)
+        await users_storage.on_user_login(user)
 
-        actual_last_login = users_storage.get_user(id_=user.id).last_login
+        actual_last_login = (await users_storage.get_user(id_=user.id)).last_login
         assert actual_last_login != initial_last_login

@@ -1,6 +1,8 @@
+from typing import Iterator
 from unittest.mock import Mock
 
 import pytest
+import pytest_asyncio
 from starlette.testclient import TestClient
 
 from api.auth.jwt_manager import JWTManager
@@ -15,6 +17,10 @@ from api.routers.users import UsersRouter
 from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
+
+
+from asgi_lifespan import LifespanManager
+from httpx import AsyncClient
 
 
 @pytest.fixture()
@@ -151,3 +157,10 @@ def app(
 @pytest.fixture()
 def client(app: App) -> TestClient:
     return TestClient(app)
+
+
+@pytest_asyncio.fixture()
+async def async_client(app: App) -> Iterator[AsyncClient]:
+    async with LifespanManager(app):
+        async with AsyncClient(app=app, base_url="http://test") as client:
+            yield client

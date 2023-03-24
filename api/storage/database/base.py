@@ -1,10 +1,8 @@
 import psycopg2
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
+from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
 
 from api.storage.database.settings import PostgresSettings
-
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.declarative import declarative_base, as_declarative
 
 
 @as_declarative()

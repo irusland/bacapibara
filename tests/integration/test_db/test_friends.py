@@ -1,6 +1,7 @@
 import random
 
 import pytest
+import pytest_asyncio
 
 from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
@@ -17,8 +18,8 @@ def friends_storage(
     yield friends_storage
 
 
-def create_user(users_storage: UsersStorage) -> User:
-    user_id = len(users_storage)
+async def create_user(users_storage: UsersStorage) -> User:
+    user_id = await users_storage.size()
     user = User(
         id=user_id,
         name="irusland",
@@ -27,17 +28,17 @@ def create_user(users_storage: UsersStorage) -> User:
         email=get_random_email(),
         password="pasasdasdasdasdasd",
     )
-    return users_storage.create_user(user=user)
+    return await users_storage.create_user(user=user)
 
 
-@pytest.fixture
-def user_1(users_storage: UsersStorage) -> User:
-    return create_user(users_storage=users_storage)
+@pytest_asyncio.fixture
+async def user_1(users_storage: UsersStorage) -> User:
+    return await create_user(users_storage=users_storage)
 
 
-@pytest.fixture
-def user_2(users_storage: UsersStorage) -> User:
-    return create_user(users_storage=users_storage)
+@pytest_asyncio.fixture
+async def user_2(users_storage: UsersStorage) -> User:
+    return await create_user(users_storage=users_storage)
 
 
 class TestFriendsStorage:
