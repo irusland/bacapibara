@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import pytest
+from httpx import AsyncClient
 from starlette.testclient import TestClient
 
 from api.models.api.login_request import LoginRequest
@@ -22,6 +23,7 @@ def prepare_users(client: TestClient):
         )
 
 
+@pytest.mark.asyncio
 class TestFriendAPI:
     @pytest.mark.parametrize(
         "user_id, friend_id",
@@ -30,23 +32,23 @@ class TestFriendAPI:
             (2, 0),
         ],
     )
-    def test_add_friend(
+    async def test_add_friend(
         self,
-        client: TestClient,
+        async_client: AsyncClient,
         user_id: int,
         friend_id: int,
         friends_storage: IFriendsStorage,
         prepare_users,
     ):
-        client.post(
+        await async_client.post(
             "/login/",
             json=LoginRequest(email=f"string{user_id}", password="string").dict(),
         )
 
-        res = client.post(f"/friends/add/{friend_id}")
+        res = await async_client.post(f"/friends/add/{friend_id}")
 
         assert res.status_code == HTTPStatus.OK
-        assert friends_storage.get_friends() == {
+        assert await friends_storage.get_friends() == {
             (user_id, friend_id),
             (friend_id, user_id),
         }
@@ -58,27 +60,27 @@ class TestFriendAPI:
             (2, 0),
         ],
     )
-    def test_cannot_add_friend_when_already_added(
+    async def test_cannot_add_friend_when_already_added(
         self,
-        client: TestClient,
+        async_client: AsyncClient,
         user_id: int,
         friend_id: int,
         friends_storage: IFriendsStorage,
         prepare_users,
     ):
-        client.post(
+        await async_client.post(
             "/login/",
             json=LoginRequest(email=f"string{user_id}", password="string").dict(),
         )
 
-        res = client.post(f"/friends/add/{friend_id}")
+        res = await async_client.post(f"/friends/add/{friend_id}")
 
         assert res.status_code == HTTPStatus.OK
 
         with pytest.raises(Exception):
-            client.post(f"/friends/add/{friend_id}")
+            await async_client.post(f"/friends/add/{friend_id}")
 
-        assert friends_storage.get_friends() == {
+        assert await friends_storage.get_friends() == {
             (user_id, friend_id),
             (friend_id, user_id),
         }

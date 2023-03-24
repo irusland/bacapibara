@@ -77,7 +77,7 @@ def _create_friends(
 
 
 def create_friends():
-    current_friends_count = len(friends_storage)
+    current_friends_count = await friends_storage.size()
     if current_friends_count >= batch_count * batch_size:
         return
 

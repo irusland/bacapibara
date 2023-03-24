@@ -87,7 +87,7 @@ class ChatRouter(APIRouter):
         ):
             user = await users_storage.get_user(credentials.id)
             logger.debug("user %s starting a chat", user)
-            friends_ids = friends_storage.get_friends_for(id=user.id)
+            friends_ids = await friends_storage.get_friends_for(id=user.id)
             if friend_id not in friends_ids:
                 raise HTTPException(
                     status_code=422,

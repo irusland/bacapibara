@@ -28,4 +28,4 @@ class FriendsRouter(APIRouter):
         ):
             friend = await users_storage.get_user(friend_id)
             logger.debug("user %s adding user %s", user.id, friend.id)
-            return friends_storage.add_friend(user.id, friend.id)
+            return await friends_storage.add_friend(user.id, friend.id)

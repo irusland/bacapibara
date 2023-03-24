@@ -51,4 +51,7 @@ class ChatStorage(IChatStorage):
 
     async def _get_size(self, session: Session) -> int:
         length = await session.execute(func.max(Chats.chat_id))
-        return length.scalar() or 0
+        result = length.scalar()
+        if result is None:
+            return 0
+        return result + 1
