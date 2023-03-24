@@ -17,9 +17,7 @@ class Chats(Base):
 
     chat_id: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(nullable=False)
-    __table_args__ = (
-        UniqueConstraint(chat_id, user_id),
-    )
+    __table_args__ = (UniqueConstraint(chat_id, user_id),)
 
 
 class ChatStorage(IChatStorage):
@@ -35,7 +33,9 @@ class ChatStorage(IChatStorage):
             async with session.begin():
                 max_chat_id = await self._get_size(session)
                 chat_id = max_chat_id + 1
-                session.add_all([Chats(chat_id=chat_id, user_id=user_id) for user_id in user_ids])
+                session.add_all(
+                    [Chats(chat_id=chat_id, user_id=user_id) for user_id in user_ids]
+                )
 
             return Chat(
                 chat_id=chat_id,
@@ -44,7 +44,9 @@ class ChatStorage(IChatStorage):
 
     async def get_chat(self, chat_id: int) -> Chat:
         async with self._database_manager.async_session() as session:
-            result = await session.execute(select(Chats.user_id).where(Chats.chat_id == chat_id))
+            result = await session.execute(
+                select(Chats.user_id).where(Chats.chat_id == chat_id)
+            )
             user_ids = result.scalars().all()
             return Chat(
                 chat_id=chat_id,

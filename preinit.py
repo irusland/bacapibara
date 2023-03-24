@@ -4,14 +4,13 @@ from api.models.api.login_request import LoginRequest
 from tests.utils import get_random_email
 
 
-url = 'http://localhost:8000'
+url = "http://localhost:8000"
 
 
 with requests.Session() as client:
-
     email = get_random_email()
     user_creation_res = client.post(
-        url=f'{url}/users/',
+        url=f"{url}/users/",
         json={
             "name": "Alice",
             "age": 0,
@@ -22,7 +21,7 @@ with requests.Session() as client:
     )
 
     friend_creation_res = client.post(
-        url=f'{url}/users/',
+        url=f"{url}/users/",
         json={
             "name": "Bob",
             "age": 0,
@@ -32,10 +31,7 @@ with requests.Session() as client:
         },
     )
     login_request = LoginRequest(email=email, password="string")
-    login_response = client.post(
-        url=f'{url}/login/',
-        json=login_request.dict()
-    )
+    login_response = client.post(url=f"{url}/login/", json=login_request.dict())
     print(login_response.headers)
 
     friend_user_id = friend_creation_res.json()

@@ -4,7 +4,7 @@ from starlette.testclient import TestClient
 from api.app import DatabaseManager, App
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def client(app: App) -> TestClient:
     return TestClient(app)
 
@@ -14,7 +14,9 @@ class TestAppEvents:
         with client:
             database_manager.connect.assert_called()
 
-    def test_shutdown_event(self, client: TestClient, database_manager: DatabaseManager):
+    def test_shutdown_event(
+        self, client: TestClient, database_manager: DatabaseManager
+    ):
         with client:
             pass
         database_manager.disconnect.assert_called()

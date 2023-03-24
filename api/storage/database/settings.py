@@ -7,7 +7,7 @@ class PostgresSettings(BaseSettings):
     password: str
     host: str
     port: int = 5432
-    driver: str = 'postgresql+asyncpg'
+    driver: str = "postgresql+asyncpg"
 
     class Config:
         env_prefix = "POSTGRES_"

@@ -30,10 +30,10 @@ class DatabaseManager:
         self.async_session = async_sessionmaker(self.engine, expire_on_commit=False)
 
     async def connect(self):
-        print(f'>>> startup start')
+        print(f">>> startup start")
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print(f'>>> startup end')
+        print(f">>> startup end")
 
     async def disconnect(self):
         await self.engine.dispose()
@@ -46,7 +46,7 @@ class App(FastAPI):
         friends_router: FriendsRouter,
         login_router: LoginRouter,
         chat_router: ChatRouter,
-        database_manager: DatabaseManager
+        database_manager: DatabaseManager,
     ):
         super().__init__()
         self.include_router(users_router)
@@ -60,8 +60,8 @@ class App(FastAPI):
         self.exception_handler(Exception)(self._server_error)
 
         self._database_manager = database_manager
-        self.on_event('startup')(self._database_manager.connect)
-        self.on_event('shutdown')(self._database_manager.disconnect)
+        self.on_event("startup")(self._database_manager.connect)
+        self.on_event("shutdown")(self._database_manager.disconnect)
 
     async def _user_not_found_handler_error(self, request, exc):
         return JSONResponse(str(exc), status_code=404)
