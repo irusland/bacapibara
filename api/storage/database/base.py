@@ -1,10 +1,17 @@
 import psycopg2
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
 
 from api.storage.database.settings import PostgresSettings
 
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.declarative import declarative_base, as_declarative
 
-class Base(DeclarativeBase):
+
+@as_declarative()
+class Base(object):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
     id: Mapped[int] = mapped_column(primary_key=True)
 
 

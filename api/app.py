@@ -14,17 +14,9 @@ from api.storage.database.settings import PostgresSettings
 
 class DatabaseManager:
     def __init__(self, postgres_settings: PostgresSettings):
-        connect_url = URL(
-            drivername=postgres_settings.driver,
-            database=postgres_settings.db,
-            username=postgres_settings.user,
-            password=postgres_settings.password,
-            host=postgres_settings.host,
-            port=postgres_settings.port,
-            query={},
-        )
+
         self.engine = create_async_engine(
-            connect_url,
+            postgres_settings.connect_url,
             echo=True,
         )
         self.async_session = async_sessionmaker(self.engine, expire_on_commit=False)

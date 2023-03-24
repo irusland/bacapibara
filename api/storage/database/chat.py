@@ -13,8 +13,6 @@ from api.storage.interface.chat import IChatStorage
 
 
 class Chats(Base):
-    __tablename__ = "chats"
-
     chat_id: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(nullable=False)
     __table_args__ = (UniqueConstraint(chat_id, user_id),)

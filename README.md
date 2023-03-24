@@ -63,6 +63,19 @@ kubectl port-forward bacapibara-api 8000
 
 and checkout http://127.0.0.1:8000/docs#/
 
+
+## Migrations
+
+create migration
+```commandline
+alembic revision --autogenerate -m "message"
+```
+
+run migration
+```commandline
+alembic upgrade head
+```
+
 ## Credits 
 
 [Ruslan Sirazhetdinov - @irusland](https://github.com/irusland)
