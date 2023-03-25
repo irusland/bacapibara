@@ -19,9 +19,9 @@ services:
       - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER:-irusland} -d ${POSTGRES_DB:-postgres}'" ]
-      interval: 10s
+      interval: 3s
       timeout: 3s
-      retries: 3
+      retries: 10
     networks:
       - backend
 
@@ -31,12 +31,18 @@ services:
       - "9090:9090"
     volumes:
       - ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - metrics
 
   grafana:
     hostname: grafana
     image: grafana/grafana
     ports:
       - 3000:3000
+    networks:
+      - metrics
+    volumes:
+      - grafana-storage:/var/lib/grafana
 
   api:
     build:
@@ -66,11 +72,13 @@ services:
       - db
     networks:
       - backend
+      - metrics
 
 
 volumes:
   postgres_data:
-
+  grafana-storage:
+    external: true
 networks:
   backend:
-#    external: true
+  metrics:

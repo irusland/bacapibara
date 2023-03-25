@@ -140,7 +140,7 @@ def database_manager() -> DatabaseManager:
     return Mock(DatabaseManager)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def prometheus_manager() -> PrometheusManager:
     return PrometheusManager()
 

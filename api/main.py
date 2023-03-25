@@ -1,7 +1,6 @@
 import logging
 
 from api.app import App
-from api.prometheus.settings import PrometheusSettings
 from api.prometheus.manager import PrometheusManager
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
@@ -66,8 +65,7 @@ chat_router = ChatRouter(
 )
 
 
-prometheus_settings = PrometheusSettings()
-prometheus_manager = PrometheusManager(prometheus_settings=prometheus_settings)
+prometheus_manager = PrometheusManager()
 metrics_router = MetricsRouter(prometheus_manager=prometheus_manager)
 
 app = App(

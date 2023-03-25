@@ -7,7 +7,7 @@ from api.prometheus.manager import PrometheusManager
 
 class MetricsRouter(APIRouter):
     def __init__(self, prometheus_manager: PrometheusManager):
-        super().__init__(tags=['metrics'])
+        super().__init__(tags=["metrics"])
 
         @self.get("/metrics")
         async def metrics(request: Request) -> Response:
