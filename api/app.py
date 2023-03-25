@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from starlette.responses import JSONResponse
 
 from api.errors import UserNotFoundError, NotAuthorizedError, NotAuthenticatedError
@@ -8,24 +6,7 @@ from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.users import UsersRouter
-from api.storage.database.base import Base
-from api.storage.database.settings import PostgresSettings
-
-
-class DatabaseManager:
-    def __init__(self, postgres_settings: PostgresSettings):
-        self.engine = create_async_engine(
-            postgres_settings.connect_url,
-            echo=True,
-        )
-        self.async_session = async_sessionmaker(self.engine, expire_on_commit=False)
-
-    async def connect(self):
-        async with self.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
-    async def disconnect(self):
-        await self.engine.dispose()
+from api.storage.database.manager import DatabaseManager
 
 
 class App(FastAPI):

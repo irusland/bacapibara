@@ -1,6 +1,6 @@
 import pytest
 
-from api.app import DatabaseManager
+from api.storage.database.manager import DatabaseManager
 from api.storage.database.chat import ChatStorage
 
 

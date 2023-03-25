@@ -1,7 +1,8 @@
 import pytest
 from starlette.testclient import TestClient
 
-from api.app import DatabaseManager, App
+from api.app import App
+from api.storage.database.manager import DatabaseManager
 
 
 @pytest.fixture(scope="function")

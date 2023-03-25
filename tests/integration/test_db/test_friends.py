@@ -3,7 +3,7 @@ import random
 import pytest
 import pytest_asyncio
 
-from api.app import DatabaseManager
+from api.storage.database.manager import DatabaseManager
 from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.settings import PostgresSettings
