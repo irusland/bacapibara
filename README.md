@@ -81,6 +81,11 @@ rollback single migration
 make downgrade
 ```
 
+
+## Grafana
+![grafana](grafana.png)
+
+
 ## Credits 
 
 [Ruslan Sirazhetdinov - @irusland](https://github.com/irusland)
