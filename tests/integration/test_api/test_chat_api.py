@@ -44,7 +44,7 @@ class TestChatAPI:
         )
         client.post(f"/friends/add/{friend_id}")
 
-        res = client.post(f"/chat/start/{friend_id}")
+        res = client.post(f"/chat/start/{friend_id}", allow_redirects=True)
 
         assert res.status_code == HTTPStatus.OK
         assert chat_storage.get_chat(0)

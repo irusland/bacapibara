@@ -4,6 +4,7 @@ from uuid import uuid4
 import faker as faker
 import tqdm as tqdm
 
+from api.app import DatabaseManager
 from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.settings import PostgresSettings
@@ -12,8 +13,9 @@ from api.storage.database.users import UsersStorage
 fake = faker.Faker()
 
 postgres_settings = PostgresSettings()
-users_storage = UsersStorage(postgres_settings=postgres_settings)
-friends_storage = FriendsStorage(postgres_settings=postgres_settings)
+database_manager = DatabaseManager(postgres_settings=postgres_settings)
+users_storage = UsersStorage(database_manager=database_manager)
+friends_storage = FriendsStorage(database_manager=database_manager)
 
 batch_size = 1000
 batch_count = 1000
@@ -43,7 +45,7 @@ def _create_users(users_storage: UsersStorage, users_to_create: list[User]):
 
 
 def create_users():
-    current_user_id = len(users_storage)
+    current_user_id = users_storage.size()
     if current_user_id >= batch_count * batch_size:
         return
     for c in tqdm.trange(batch_count):
@@ -77,11 +79,11 @@ def _create_friends(
 
 
 def create_friends():
-    current_friends_count = len(friends_storage)
+    current_friends_count = await friends_storage.size()
     if current_friends_count >= batch_count * batch_size:
         return
 
-    current_users_count = len(users_storage)
+    current_users_count = users_storage.size()
     current_friends_count += 1
     for c in tqdm.trange(batch_count):
         friends_to_create = []

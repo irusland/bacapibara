@@ -1,10 +1,14 @@
+from typing import Iterator
+from unittest.mock import Mock
+
 import pytest
+import pytest_asyncio
 from starlette.testclient import TestClient
 
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
-from api.app import App
+from api.app import App, DatabaseManager
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
@@ -13,6 +17,10 @@ from api.routers.users import UsersRouter
 from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
+
+
+from asgi_lifespan import LifespanManager
+from httpx import AsyncClient
 
 
 @pytest.fixture()
@@ -125,20 +133,34 @@ def login_router(
 
 
 @pytest.fixture()
+def database_manager() -> DatabaseManager:
+    return Mock(DatabaseManager)
+
+
+@pytest.fixture()
 def app(
     users_router: UsersRouter,
     friends_router: FriendsRouter,
     chat_router: ChatRouter,
     login_router: LoginRouter,
+    database_manager: DatabaseManager,
 ) -> App:
     return App(
         users_router=users_router,
         friends_router=friends_router,
         chat_router=chat_router,
         login_router=login_router,
+        database_manager=database_manager,
     )
 
 
 @pytest.fixture()
 def client(app: App) -> TestClient:
     return TestClient(app)
+
+
+@pytest_asyncio.fixture()
+async def async_client(app: App) -> Iterator[AsyncClient]:
+    async with LifespanManager(app):
+        async with AsyncClient(app=app, base_url="http://test") as client:
+            yield client

@@ -5,18 +5,18 @@ class FriendsStorage(IFriendsStorage):
     def __init__(self):
         self._friends = set()
 
-    def __len__(self) -> int:
+    async def size(self) -> int:
         return len(self._friends)
 
-    def add_friend(self, id_: int, other_id: int) -> set[tuple[int, int]]:
+    async def add_friend(self, id_: int, other_id: int) -> set[tuple[int, int]]:
         self._add_friend(id_=id_, other_id=other_id)
         self._add_friend(id_=other_id, other_id=id_)
         return self._friends
 
-    def get_friends(self) -> set[tuple[int, int]]:
+    async def get_friends(self) -> set[tuple[int, int]]:
         return self._friends
 
-    def get_friends_for(self, id: int) -> list[int]:
+    async def get_friends_for(self, id: int) -> list[int]:
         friends = list()
         for user_id, friend_id in self._friends:
             if user_id == id:

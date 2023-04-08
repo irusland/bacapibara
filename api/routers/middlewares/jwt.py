@@ -116,7 +116,7 @@ class JWTMiddleware:
     def get_user(self):
         async def __call__(request: Request) -> User:
             credentials = await self._get_credentials(request=request)
-            return self._users_storage.get_user(credentials.id)
+            return await self._users_storage.get_user(credentials.id)
 
         return self._wrap_if_bearer(__call__)
 

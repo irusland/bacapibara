@@ -1,150 +1,133 @@
+from datetime import datetime
 from typing import Any
 
+from sqlalchemy import Index, select, update
+from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.sql.functions import func
+
+from api.app import DatabaseManager
 from api.errors import UserNotFoundError
 from api.models.db.user import User
-from api.storage.database.base import BaseStorage
-from api.storage.database.settings import PostgresSettings
+from api.storage.database.base import Base
 from api.storage.interface.users import IUsersStorage
 
 
-class UsersStorage(BaseStorage, IUsersStorage):
-    def __init__(self, postgres_settings: PostgresSettings):
-        super().__init__(table_name="users", postgres_settings=postgres_settings)
-        self._init_db()
+class Users(Base):
+    name: Mapped[str] = mapped_column(nullable=False)
+    age: Mapped[int] = mapped_column(nullable=False)
+    about: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
+    last_login: Mapped[datetime] = mapped_column(
+        nullable=False, server_default=func.now()
+    )
+    __table_args__ = (
+        Index(
+            "last_login_id_name_index",
+            "last_login",
+            "id",
+            "name",
+            postgresql_ops={"name": "DESC"},
+        ),
+    )
 
-    def _init_db(self):
-        create_if_not_exists_table_query = f"""
-        CREATE TABLE IF NOT EXISTS {self._table_name} (
-            id integer NOT NULL PRIMARY KEY,
-            name text NOT NULL,
-            age integer NOT NULL,
-            about text NOT NULL,
-            email text NOT NULL UNIQUE,
-            password text NOT NULL,
-            last_login timestamp NOT NULL DEFAULT now()
-        );
-        CREATE INDEX IF NOT EXISTS users_last_login_id_name_desc_index ON users (last_login, id, name DESC);
-        """
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(create_if_not_exists_table_query)
 
-    def create_user(self, user: User) -> User:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    INSERT INTO {self._table_name} (id, name, age, about, email, password)
-                    VALUES (%(id)s, %(name)s, %(age)s, %(about)s, %(email)s, %(password)s);
-                    """,
-                    {
-                        "id": user.id,
-                        "name": user.name,
-                        "age": user.age,
-                        "about": user.about,
-                        "email": user.email,
-                        "password": user.password,
-                    },
+class UsersStorage(IUsersStorage):
+    def __init__(self, database_manager: DatabaseManager):
+        self._database_manager = database_manager
+
+    async def size(self) -> int:
+        async with self._database_manager.async_session() as session:
+            length = await session.execute(func.max(Users.id))
+            result = length.scalar()
+            if result is None:
+                return 0
+            return result + 1
+
+    async def create_user(self, user: User) -> User:
+        async with self._database_manager.async_session() as session:
+            async with session.begin():
+                session.add(
+                    Users(
+                        id=user.id,
+                        name=user.name,
+                        age=user.age,
+                        about=user.about,
+                        email=user.email,
+                        password=user.password,
+                    )
                 )
+
         return user
 
-    def get_users(self) -> list[User]:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    SELECT id, name, age, about, email, password 
-                    FROM {self._table_name}
-                    """
-                )
-                raw_users = cursor.fetchall()
+    async def get_users(self) -> list[User]:
         users = []
-        for id_, name, age, about, email, password in raw_users:
-            users.append(
-                User(
-                    id=id_,
-                    name=name,
-                    age=age,
-                    about=about,
-                    email=email,
-                    password=password,
+        async with self._database_manager.async_session() as session:
+            db_users = (await session.execute(select(Users))).all()
+            for db_user in db_users:
+                db_user = db_user.Users
+                users.append(
+                    User(
+                        id=db_user.id,
+                        name=db_user.name,
+                        age=db_user.age,
+                        about=db_user.about,
+                        email=db_user.email,
+                        password=db_user.password,
+                    )
                 )
-            )
         return users
 
-    def _select_user(self, raw_where_clause: str, data: dict[str, Any]) -> User:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    SELECT id, name, age, about, email, password, last_login
-                    FROM {self._table_name}
-                    WHERE {raw_where_clause}
-                    """,
-                    data,
-                )
-                fetched = cursor.fetchone()
-                if not fetched:
-                    raise UserNotFoundError(f"User was not found")
-                id_, name, age, about, email, password, last_login = fetched
-        user = User(
-            id=id_,
-            name=name,
-            age=age,
-            about=about,
-            email=email,
-            password=password,
-            last_login=last_login,
-        )
-        cursor.close()
-        return user
+    async def _select_user(self, where_clause: Any) -> User:
+        async with self._database_manager.async_session() as session:
+            db_user = (
+                await session.execute(select(Users).where(where_clause))
+            ).fetchone()
+            if not db_user:
+                raise UserNotFoundError(f"User was not found")
+            db_user = db_user.Users
+            return User(
+                id=db_user.id,
+                name=db_user.name,
+                age=db_user.age,
+                about=db_user.about,
+                email=db_user.email,
+                password=db_user.password,
+                last_login=db_user.last_login,
+            )
 
-    def get_user(self, id_: int) -> User:
-        return self._select_user(raw_where_clause="id = %(id)s", data={"id": id_})
+    async def get_user(self, id_: int) -> User:
+        return await self._select_user(where_clause=Users.id == id_)
 
-    def update_user(self, id_: int, new_user: User) -> User:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    UPDATE {self._table_name} 
-                    SET name = %(name)s,
-                        age = %(age)s,
-                        about = %(about)s,
-                        email = %(email)s,
-                        password = %(password)s
-                    WHERE id = %(id)s
-                    """,
-                    {
-                        "id": id_,
-                        "name": new_user.name,
-                        "age": new_user.age,
-                        "about": new_user.about,
-                        "email": new_user.email,
-                        "password": new_user.password,
-                    },
+    async def update_user(self, id_: int, new_user: User) -> User:
+        async with self._database_manager.async_session() as session:
+            async with session.begin():
+                await session.execute(
+                    update(Users)
+                    .where(Users.id == id_)
+                    .values(
+                        {
+                            "name": new_user.name,
+                            "age": new_user.age,
+                            "about": new_user.about,
+                            "email": new_user.email,
+                            "password": new_user.password,
+                        },
+                    )
                 )
+
         return new_user
 
-    def find_user(self, email: str) -> User:
-        return self._select_user(
-            raw_where_clause="email = %(email)s", data={"email": email}
+    async def find_user(self, email: str) -> User:
+        return await self._select_user(
+            where_clause=Users.email == email,
         )
 
-    def on_user_login(self, user: User) -> None:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    UPDATE {self._table_name} 
-                    SET last_login = NOW()
-                    WHERE id = %(id)s
-                    """,
-                    {
-                        "id": user.id,
-                    },
+    async def on_user_login(self, user: User) -> None:
+        async with self._database_manager.async_session() as session:
+            async with session.begin():
+                await session.execute(
+                    update(Users)
+                    .where(Users.id == user.id)
+                    .values({"last_login": datetime.now()})
                 )
-                print(cursor.rowcount)
-                self._connection.commit()
-                cursor.close()
-                print(cursor.rowcount)

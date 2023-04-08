@@ -85,15 +85,15 @@ class ChatRouter(APIRouter):
                 jwt_middleware.get_user_credentials()
             ),
         ):
-            user = users_storage.get_user(credentials.id)
+            user = await users_storage.get_user(credentials.id)
             logger.debug("user %s starting a chat", user)
-            friends_ids = friends_storage.get_friends_for(id=user.id)
+            friends_ids = await friends_storage.get_friends_for(id=user.id)
             if friend_id not in friends_ids:
                 raise HTTPException(
                     status_code=422,
                     detail="Starting a chat with stranger is not allowed",
                 )
-            chat = chat_storage.create_chat([user.id, friend_id])
+            chat = await chat_storage.create_chat([user.id, friend_id])
             logger.debug("Started new chat %s", chat)
 
             return RedirectResponse(
@@ -122,7 +122,7 @@ class ChatRouter(APIRouter):
             print(f">>> {user=}")
             web_socket_connection_manager.connect(user_id=user.id, websocket=websocket)
 
-            chat = chat_storage.get_chat(chat_id)
+            chat = await chat_storage.get_chat(chat_id)
 
             try:
                 while True:

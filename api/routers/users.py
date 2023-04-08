@@ -21,7 +21,7 @@ class UsersRouter(APIRouter):
         @self.post("/", response_model=int)
         async def create_user(user: NewUser):
             new_user = DBUser(
-                id=len(users_storage),
+                id=await users_storage.size(),
                 name=user.name,
                 about=user.about,
                 age=user.age,
@@ -30,7 +30,7 @@ class UsersRouter(APIRouter):
                     user.password.encode(), bcrypt.gensalt()
                 ).decode(),
             )
-            return users_storage.create_user(new_user).id
+            return (await users_storage.create_user(new_user)).id
 
         @self.get(
             "/",
@@ -49,7 +49,7 @@ class UsersRouter(APIRouter):
                     email=user.email,
                     password=user.password,
                 )
-                for user in users_storage.get_users()
+                for user in await users_storage.get_users()
             ]
 
         @self.get(
@@ -58,7 +58,7 @@ class UsersRouter(APIRouter):
             dependencies=[Depends(jwt_middleware.get_user_credentials())],
         )
         async def get_user(id: int) -> APIUser:
-            user = users_storage.get_user(id_=id)
+            user = await users_storage.get_user(id_=id)
             return APIUser(
                 id=user.id,
                 name=user.name,
@@ -82,7 +82,7 @@ class UsersRouter(APIRouter):
                 email=user.email,
                 password=user.password,
             )
-            user = users_storage.update_user(id, new_user)
+            user = await users_storage.update_user(id, new_user)
             return APIUser(
                 id=user.id,
                 name=user.name,

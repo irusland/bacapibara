@@ -1,36 +1,35 @@
-import random
-
 import pytest
 
+from api.app import DatabaseManager
 from api.storage.database.chat import ChatStorage
-from api.storage.database.settings import PostgresSettings
 
 
 @pytest.fixture
-def chat_storage(postgres_settings: PostgresSettings) -> ChatStorage:
-    chat_storage = ChatStorage(postgres_settings=postgres_settings)
+def chat_storage(database_manager: DatabaseManager) -> ChatStorage:
+    chat_storage = ChatStorage(database_manager=database_manager)
     yield chat_storage
 
 
+@pytest.mark.asyncio
 class TestChatStorage:
-    def test_len(self, chat_storage: ChatStorage):
-        assert len(chat_storage) is not None
+    async def test_size(self, chat_storage: ChatStorage):
+        assert await chat_storage.size() is not None
 
-    def test_create(self, chat_storage: ChatStorage):
-        max_chat_id = len(chat_storage)
+    async def test_create(self, chat_storage: ChatStorage):
+        max_chat_id = await chat_storage.size()
         user_ids = [1, 2, 4]
 
-        chat = chat_storage.create_chat(user_ids=user_ids)
+        chat = await chat_storage.create_chat(user_ids=user_ids)
 
         assert chat.chat_id == max_chat_id + 1
         assert chat.user_ids == user_ids
 
-    def test_create_get(self, chat_storage: ChatStorage):
-        max_chat_id = len(chat_storage)
+    async def test_create_get(self, chat_storage: ChatStorage):
+        max_chat_id = await chat_storage.size()
         user_ids = [1, 2]
-        chat_storage.create_chat(user_ids=user_ids)
+        await chat_storage.create_chat(user_ids=user_ids)
 
-        actual_chat = chat_storage.get_chat(max_chat_id + 1)
+        actual_chat = await chat_storage.get_chat(max_chat_id + 1)
 
         assert actual_chat.chat_id == max_chat_id + 1
         assert actual_chat.user_ids == user_ids

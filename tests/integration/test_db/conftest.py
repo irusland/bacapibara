@@ -1,6 +1,7 @@
 import psycopg2
 import pytest
 
+from api.app import DatabaseManager
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 
@@ -10,9 +11,16 @@ def postgres_settings() -> PostgresSettings:
     return PostgresSettings()
 
 
+@pytest.fixture()
+def database_manager(postgres_settings: PostgresSettings) -> DatabaseManager:
+    return DatabaseManager(postgres_settings=postgres_settings)
+
+
 @pytest.fixture
-def users_storage(postgres_settings: PostgresSettings) -> UsersStorage:
-    users_storage = UsersStorage(postgres_settings=postgres_settings)
+def users_storage(
+    postgres_settings: PostgresSettings, database_manager: DatabaseManager
+) -> UsersStorage:
+    users_storage = UsersStorage(database_manager=database_manager)
     yield users_storage
 
     connection = psycopg2.connect(
@@ -35,7 +43,7 @@ def users_storage(postgres_settings: PostgresSettings) -> UsersStorage:
             )
             cursor.execute(
                 f"""
-                DELETE FROM {users_storage._table_name} CASCADE
+                DELETE FROM users CASCADE
                 WHERE email LIKE %(email)s;
                 """,
                 {

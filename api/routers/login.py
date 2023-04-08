@@ -28,7 +28,7 @@ class LoginRouter(APIRouter):
 
         @self.post("/")
         async def login(login_request: LoginRequest, response: Response):
-            user = users_storage.find_user(login_request.email)
+            user = await users_storage.find_user(login_request.email)
             if bcrypt.checkpw(login_request.password.encode(), user.password.encode()):
                 response.set_cookie(
                     key=jwt_settings.session_cookie_key,
@@ -36,7 +36,7 @@ class LoginRouter(APIRouter):
                     expires=datetime.datetime.now(tz=UTC)
                     + jwt_settings.session_cookie_expires,
                 )
-                users_storage.on_user_login(user=user)
+                await users_storage.on_user_login(user=user)
                 return {"message": f"User {user} was authenticated"}
             logger.info("User entered wrong password")
             raise NotAuthenticatedError()

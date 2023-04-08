@@ -1,63 +1,51 @@
-from api.storage.database.base import BaseStorage
-from api.storage.database.settings import PostgresSettings
+from sqlalchemy import UniqueConstraint, ForeignKey, func, select
+from sqlalchemy.orm import Mapped, mapped_column
+
+from api.app import DatabaseManager
+from api.storage.database.base import Base
 from api.storage.interface.friends import IFriendsStorage
 
 
-class FriendsStorage(BaseStorage, IFriendsStorage):
-    def __init__(self, postgres_settings: PostgresSettings):
-        super().__init__(table_name="friends", postgres_settings=postgres_settings)
-        self._init_db()
+class Friends(Base):
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    friend_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    __table_args__ = (UniqueConstraint(user_id, friend_id),)
 
-    def _init_db(self):
-        create_if_not_exists_table_query = f"""
-        CREATE TABLE IF NOT EXISTS {self._table_name} (
-            id SERIAL NOT NULL PRIMARY KEY,
-            user_id integer NOT NULL,
-            friend_id integer NOT NULL,
-            UNIQUE (user_id, friend_id),
-            CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id),
-            CONSTRAINT fk_friend_id FOREIGN KEY (friend_id) REFERENCES users (id)
-        );
-        """
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(create_if_not_exists_table_query)
 
-    def add_friend(self, id_: int, x: int) -> set[tuple[int, int]]:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                insertion_query = f"""
-                    INSERT INTO {self._table_name} (user_id, friend_id)
-                    VALUES (%(user_id)s, %(friend_id)s);
-                    """
-                cursor.execute(
-                    insertion_query,
-                    {"user_id": id_, "friend_id": x},
-                )
-                cursor.execute(
-                    insertion_query,
-                    {"user_id": x, "friend_id": id_},
-                )
-        return self.get_friends()
+class FriendsStorage(IFriendsStorage):
+    def __init__(self, database_manager: DatabaseManager):
+        self._database_manager = database_manager
 
-    def get_friends(self) -> set[tuple[int, int]]:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    SELECT user_id, friend_id FROM {self._table_name};
-                    """,
-                )
-                return set(cursor.fetchall())
+    async def size(self) -> int:
+        async with self._database_manager.async_session() as session:
+            return (await session.execute(select(func.count(Friends.id)))).scalar_one()
 
-    def get_friends_for(self, id: int) -> list[int]:
-        with self._connection:
-            with self._connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    SELECT friend_id FROM {self._table_name}
-                    WHERE user_id = %(user_id)s;
-                    """,
-                    {"user_id": id},
+    async def add_friend(self, id_: int, x: int) -> set[tuple[int, int]]:
+        async with self._database_manager.async_session() as session:
+            async with session.begin():
+                session.add_all(
+                    [
+                        Friends(user_id=id_, friend_id=x),
+                        Friends(user_id=x, friend_id=id_),
+                    ]
                 )
-                return list(pair[0] for pair in cursor.fetchall())
+
+        return await self.get_friends()
+
+    async def get_friends(self) -> set[tuple[int, int]]:
+        async with self._database_manager.async_session() as session:
+            db_friends = (await session.execute(select(Friends))).all()
+            friends = set()
+            for db_friend in db_friends:
+                db_friendship = db_friend.Friends
+                pair = (db_friendship.user_id, db_friendship.friend_id)
+                friends.add(pair)
+            return friends
+
+    async def get_friends_for(self, id: int) -> list[int]:
+        async with self._database_manager.async_session() as session:
+            result = await session.execute(
+                select(Friends.friend_id).where(Friends.user_id == id)
+            )
+
+            return result.scalars().all()

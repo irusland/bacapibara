@@ -1,6 +1,17 @@
 import psycopg2
+from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
 
 from api.storage.database.settings import PostgresSettings
+
+
+@as_declarative()
+class Base(object):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
+    id: Mapped[int] = mapped_column(primary_key=True)
 
 
 class BaseStorage:
