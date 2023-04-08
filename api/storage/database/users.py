@@ -5,7 +5,7 @@ from sqlalchemy import Index, select, update
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.sql.functions import func
 
-from api.app import DatabaseManager
+from api.storage.database.manager import DatabaseManager
 from api.errors import UserNotFoundError
 from api.models.db.user import User
 from api.storage.database.base import Base

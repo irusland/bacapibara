@@ -1,7 +1,7 @@
 import psycopg2
 import pytest
 
-from api.app import DatabaseManager
+from api.storage.database.manager import DatabaseManager
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 

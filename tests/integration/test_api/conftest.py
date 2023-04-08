@@ -8,7 +8,10 @@ from starlette.testclient import TestClient
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
-from api.app import App, DatabaseManager
+from api.app import App
+from api.prometheus.manager import PrometheusManager
+from api.routers.metrics import MetricsRouter
+from api.storage.database.manager import DatabaseManager
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
@@ -137,20 +140,34 @@ def database_manager() -> DatabaseManager:
     return Mock(DatabaseManager)
 
 
+@pytest.fixture(scope="session")
+def prometheus_manager() -> PrometheusManager:
+    return PrometheusManager()
+
+
+@pytest.fixture()
+def metrics_router(prometheus_manager: PrometheusManager) -> MetricsRouter:
+    return MetricsRouter(prometheus_manager=prometheus_manager)
+
+
 @pytest.fixture()
 def app(
     users_router: UsersRouter,
     friends_router: FriendsRouter,
     chat_router: ChatRouter,
     login_router: LoginRouter,
+    metrics_router: MetricsRouter,
     database_manager: DatabaseManager,
+    prometheus_manager: PrometheusManager,
 ) -> App:
     return App(
         users_router=users_router,
         friends_router=friends_router,
         chat_router=chat_router,
         login_router=login_router,
+        metrics_router=metrics_router,
         database_manager=database_manager,
+        prometheus_manager=prometheus_manager,
     )
 
 

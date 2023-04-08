@@ -1,7 +1,7 @@
 from sqlalchemy import UniqueConstraint, ForeignKey, func, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from api.app import DatabaseManager
+from api.storage.database.manager import DatabaseManager
 from api.storage.database.base import Base
 from api.storage.interface.friends import IFriendsStorage
 
