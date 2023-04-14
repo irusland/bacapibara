@@ -10,6 +10,7 @@ from api.errors import UserNotFoundError
 from api.models.db.user import User
 from api.storage.database.base import Base
 from api.storage.interface.users import IUsersStorage
+import sqlalchemy as sa
 
 
 class Users(Base):
@@ -28,6 +29,11 @@ class Users(Base):
             "id",
             "name",
             postgresql_ops={"name": "DESC"},
+        ),
+        Index(
+            "ix_tsvector_name_about",
+            sa.text("to_tsvector('russian'::regconfig, name || ' ' || about)"),
+            postgresql_using="gin",
         ),
     )
 

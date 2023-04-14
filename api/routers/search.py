@@ -40,3 +40,12 @@ class SearchRouter(APIRouter):
                     )
 
             return filtered_messages
+
+        @self.get("/users/{name}")
+        async def search_users(
+            name: str,
+            user: User = Depends(jwt_middleware.get_user()),
+        ) -> list[User]:
+            logger.debug("Searching users by name %s", name)
+
+            return await search_storage.users_by_name(name)

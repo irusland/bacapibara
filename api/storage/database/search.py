@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from sqlalchemy.dialects.postgresql import to_tsquery
 
 from api.storage.database.manager import DatabaseManager
@@ -21,8 +21,8 @@ class SearchStorage(ISearchStorage):
 
     async def users_by_name(self, name: str) -> list[Users]:
         async with self._database_manager.async_session() as session:
-            return await (
-                session.query(Users)
-                .filter(Users.c.name.op("@@")(to_tsquery(name)))
-                .all()
+            ts_query = text(
+                f"to_tsvector('russian'::regconfig, name || ' ' || about) @@ to_tsquery('russian', '{name}')"
             )
+            rows = await session.execute(select(Users).filter(ts_query).limit(100))
+            return [row.Users for row in rows]
