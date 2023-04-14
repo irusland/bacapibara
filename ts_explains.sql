@@ -19,3 +19,19 @@ WHERE to_tsvector('russian', messages.text) @@ to_tsquery( 'russian', 'рай' )
 --(10 rows)
 
 
+
+
+EXPLAIN ANALYZE SELECT users.name, users.age, users.about, users.email, users.password, users.last_login, users.id
+FROM users
+WHERE to_tsvector('russian', name || ' ' || about) @@ to_tsquery('russian', 'Руслан');
+
+--                                                             QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------------
+-- Bitmap Heap Scan on users  (cost=968.46..3042.24 rows=576 width=150) (actual time=1.564..25.414 rows=945 loops=1)
+--   Recheck Cond: (to_tsvector('russian'::regconfig, (((name)::text || ' '::text) || (about)::text)) @@ '''русла'''::tsquery)
+--   Heap Blocks: exact=902
+--   ->  Bitmap Index Scan on ix_tsvector_name_about  (cost=0.00..968.32 rows=576 width=0) (actual time=1.485..1.485 rows=945 loops=1)
+--         Index Cond: (to_tsvector('russian'::regconfig, (((name)::text || ' '::text) || (about)::text)) @@ '''русла'''::tsquery)
+-- Planning Time: 1.018 ms
+-- Execution Time: 25.565 ms
+--(7 rows)

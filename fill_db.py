@@ -12,7 +12,7 @@ from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.messages import Messages
 from api.storage.database.settings import PostgresSettings
-from api.storage.database.users import UsersStorage
+from api.storage.database.users import UsersStorage, Users
 
 import logging
 
@@ -30,31 +30,25 @@ batch_size = 1000
 batch_count = 1000
 
 
-def _create_users(users_storage: UsersStorage, users_to_create: list[User]):
+async def _create_users(users_storage: UsersStorage, users_to_create: list[User]):
     users = [
-        (
-            user.id,
-            user.name,
-            user.age,
-            user.about,
-            user.email,
-            user.password,
+        Users(
+            id=user.id,
+            name=user.name,
+            age=user.age,
+            about=user.about,
+            email=user.email,
+            password=user.password,
         )
         for user in users_to_create
     ]
-    with users_storage._connection:
-        with users_storage._connection.cursor() as cursor:
-            arg_str = ",".join(["%s"] * len(users[0]))
-            args_str = ",".join(
-                (cursor.mogrify(f"({arg_str})", x)).decode() for x in users
-            )
-            cursor.execute(
-                f"INSERT INTO {users_storage._table_name} VALUES " + args_str
-            )
+    async with database_manager.async_session() as session:
+        async with session.begin():
+            session.add_all(users)
 
 
-def create_users():
-    current_user_id = users_storage.size()
+async def create_users():
+    current_user_id = await users_storage.size()
     if current_user_id >= batch_count * batch_size:
         return
     for c in tqdm.trange(batch_count):
@@ -70,7 +64,7 @@ def create_users():
             )
             users_to_create.append(user)
             current_user_id += 1
-        _create_users(users_storage, users_to_create)
+        await _create_users(users_storage, users_to_create)
 
 
 def _create_friends(
@@ -136,7 +130,7 @@ async def create_messages():
                 session.add_all(messages_to_create)
 
 
-# create_users()
+asyncio.run(create_users())
 # create_friends()
 
-asyncio.run(create_messages())
+# asyncio.run(create_messages())
