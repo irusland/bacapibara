@@ -7,7 +7,9 @@ from sqlalchemy.orm import mapped_column
 from api.storage.database.manager import DatabaseManager
 from api.models.api.chat import Chat
 from api.storage.database.base import Base
+from api.storage.database.messages import Messages
 from api.storage.interface.chat import IChatStorage
+from api.storage.message import Message
 
 
 class Chats(Base):
@@ -36,6 +38,7 @@ class ChatStorage(IChatStorage):
             return Chat(
                 chat_id=chat_id,
                 user_ids=user_ids,
+                messages=[],
             )
 
     async def get_chat(self, chat_id: int) -> Chat:
@@ -44,9 +47,22 @@ class ChatStorage(IChatStorage):
                 select(Chats.user_id).where(Chats.chat_id == chat_id)
             )
             user_ids = result.scalars().all()
+            result = await session.execute(
+                select(Messages.user_id, Messages.text).where(
+                    Messages.chat_id == chat_id
+                )
+            )
+            messages = result.all()
             return Chat(
                 chat_id=chat_id,
                 user_ids=[user_id for user_id in user_ids],
+                messages=[
+                    Message(
+                        user_id=message.user_id,
+                        text=message.text,
+                    )
+                    for message in messages
+                ],
             )
 
     async def _get_size(self, session: Session) -> int:
@@ -55,3 +71,14 @@ class ChatStorage(IChatStorage):
         if result is None:
             return 0
         return result + 1
+
+    async def add_message(self, chat_id: int, message: Message) -> None:
+        async with self._database_manager.async_session() as session:
+            async with session.begin():
+                session.add(
+                    Messages(
+                        chat_id=chat_id,
+                        user_id=message.user_id,
+                        text=message.text,
+                    )
+                )

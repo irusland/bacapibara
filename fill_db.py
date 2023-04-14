@@ -1,16 +1,25 @@
+import asyncio
+import logging
 import random
 from uuid import uuid4
 
 import faker as faker
 import tqdm as tqdm
+from sqlalchemy import select, func
 
 from api.storage.database.manager import DatabaseManager
 from api.models.db.user import User
 from api.storage.database.friends import FriendsStorage
+from api.storage.database.messages import Messages
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 
-fake = faker.Faker()
+import logging
+
+logging.disable(logging.INFO)
+
+
+fake = faker.Faker(locale='ru_RU')
 
 postgres_settings = PostgresSettings()
 database_manager = DatabaseManager(postgres_settings=postgres_settings)
@@ -78,7 +87,7 @@ def _create_friends(
             )
 
 
-def create_friends():
+async def create_friends():
     current_friends_count = await friends_storage.size()
     if current_friends_count >= batch_count * batch_size:
         return
@@ -102,5 +111,29 @@ def create_friends():
             pass
 
 
-create_users()
-create_friends()
+async def create_messages():
+    async with database_manager.async_session() as session:
+        current_messages_count = (await session.execute(select(func.count(Messages.id)))).scalar_one()
+
+    if current_messages_count >= batch_count * batch_size:
+        return
+
+    for c in tqdm.trange(batch_count):
+        messages_to_create = []
+        for b in range(batch_size):
+            messages_to_create.append(
+                Messages(
+                    chat_id=0,
+                    user_id=1,
+                    text=fake.text(),
+                )
+            )
+            current_messages_count += 1
+        async with database_manager.async_session() as session:
+            async with session.begin():
+                session.add_all(messages_to_create)
+
+# create_users()
+# create_friends()
+
+asyncio.run(create_messages())
