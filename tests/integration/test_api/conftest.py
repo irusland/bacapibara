@@ -11,12 +11,14 @@ from api.connection.web_socket_connection_manager import WebSocketConnectionMana
 from api.app import App
 from api.prometheus.manager import PrometheusManager
 from api.routers.metrics import MetricsRouter
+from api.routers.search import SearchRouter
 from api.storage.database.manager import DatabaseManager
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
+from api.storage.database.search import SearchStorage
 from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
@@ -151,12 +153,23 @@ def metrics_router(prometheus_manager: PrometheusManager) -> MetricsRouter:
 
 
 @pytest.fixture()
+def search_storage(database_manager: DatabaseManager) -> SearchStorage:
+    return SearchStorage(database_manager=database_manager)
+
+
+@pytest.fixture()
+def search_router(search_storage: SearchStorage, friends_storage: FriendsStorage, jwt_middleware: JWTMiddleware) -> SearchRouter:
+    return SearchRouter(search_storage=search_storage, friends_storage=friends_storage, jwt_middleware=jwt_middleware)
+
+
+@pytest.fixture()
 def app(
     users_router: UsersRouter,
     friends_router: FriendsRouter,
     chat_router: ChatRouter,
     login_router: LoginRouter,
     metrics_router: MetricsRouter,
+    search_router: SearchRouter,
     database_manager: DatabaseManager,
     prometheus_manager: PrometheusManager,
 ) -> App:
@@ -166,6 +179,7 @@ def app(
         chat_router=chat_router,
         login_router=login_router,
         metrics_router=metrics_router,
+        search_router=search_router,
         database_manager=database_manager,
         prometheus_manager=prometheus_manager,
     )

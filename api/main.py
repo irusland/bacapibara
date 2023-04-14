@@ -70,7 +70,7 @@ search_storage = SearchStorage(database_manager=database_manager)
 search_router = SearchRouter(
     search_storage=search_storage,
     friends_storage=friends_storage,
-    jwt_middleware=jwt_middleware
+    jwt_middleware=jwt_middleware,
 )
 
 prometheus_manager = PrometheusManager()

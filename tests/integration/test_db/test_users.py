@@ -44,7 +44,7 @@ class TestUsersStorage:
     async def test_create_user(self, users_storage: UsersStorage):
         user_id = await users_storage.size()
         assert (
-            users_storage.create_user(
+            await users_storage.create_user(
                 user=User(
                     id=user_id,
                     name="irusland",

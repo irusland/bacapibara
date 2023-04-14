@@ -1,11 +1,11 @@
 import psycopg2
-from sqlalchemy.ext.declarative import as_declarative
+import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, declared_attr
 
 from api.storage.database.settings import PostgresSettings
 
 
-@as_declarative()
+@sqlalchemy.orm.as_declarative()
 class Base(object):
     @declared_attr
     def __tablename__(cls):

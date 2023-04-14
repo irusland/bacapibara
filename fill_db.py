@@ -19,7 +19,7 @@ import logging
 logging.disable(logging.INFO)
 
 
-fake = faker.Faker(locale='ru_RU')
+fake = faker.Faker(locale="ru_RU")
 
 postgres_settings = PostgresSettings()
 database_manager = DatabaseManager(postgres_settings=postgres_settings)
@@ -113,7 +113,9 @@ async def create_friends():
 
 async def create_messages():
     async with database_manager.async_session() as session:
-        current_messages_count = (await session.execute(select(func.count(Messages.id)))).scalar_one()
+        current_messages_count = (
+            await session.execute(select(func.count(Messages.id)))
+        ).scalar_one()
 
     if current_messages_count >= batch_count * batch_size:
         return
@@ -132,6 +134,7 @@ async def create_messages():
         async with database_manager.async_session() as session:
             async with session.begin():
                 session.add_all(messages_to_create)
+
 
 # create_users()
 # create_friends()
