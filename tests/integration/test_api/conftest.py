@@ -158,8 +158,16 @@ def search_storage(database_manager: DatabaseManager) -> SearchStorage:
 
 
 @pytest.fixture()
-def search_router(search_storage: SearchStorage, friends_storage: FriendsStorage, jwt_middleware: JWTMiddleware) -> SearchRouter:
-    return SearchRouter(search_storage=search_storage, friends_storage=friends_storage, jwt_middleware=jwt_middleware)
+def search_router(
+    search_storage: SearchStorage,
+    friends_storage: FriendsStorage,
+    jwt_middleware: JWTMiddleware,
+) -> SearchRouter:
+    return SearchRouter(
+        search_storage=search_storage,
+        friends_storage=friends_storage,
+        jwt_middleware=jwt_middleware,
+    )
 
 
 @pytest.fixture()

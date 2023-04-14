@@ -48,9 +48,9 @@ class ChatStorage(IChatStorage):
             )
             user_ids = result.scalars().all()
             result = await session.execute(
-                select(Messages.user_id, Messages.text).where(
-                    Messages.chat_id == chat_id
-                ).order_by(Messages.id)
+                select(Messages.user_id, Messages.text)
+                .where(Messages.chat_id == chat_id)
+                .order_by(Messages.id)
             )
             messages = result.all()
             return Chat(
