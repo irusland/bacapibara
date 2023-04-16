@@ -108,3 +108,8 @@ and we got an answer from backup server
 
 wee see that with LB RPS is pretty much higher and latency without LB is > 1s and with LB < 1s
 
+# 6) metrics
+
+using module `ngx_http_stub_status_module`
+
+![nginx-metrics.png](images%2Fnginx-metrics.png)
