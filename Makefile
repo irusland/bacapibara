@@ -76,3 +76,7 @@ upgrade:
 .PHONY: downgrade
 downgrade:
 	alembic downgrade -1
+
+.PHONY: fqdn
+fqdn:
+	echo "" >>  /etc/hosts && echo "127.0.0.1 irusla.nd" >> /etc/hosts
