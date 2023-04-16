@@ -86,3 +86,8 @@ cert:
 .PHONY: fqdn
 fqdn:
 	echo "" >>  /etc/hosts && echo "127.0.0.1 irusla.nd" >> /etc/hosts
+
+
+.PHONY: locust
+locust:
+	locust -H https://irusla.nd

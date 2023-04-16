@@ -90,4 +90,21 @@ and we got an answer from backup server
 ![hostname_backup.png](images%2Fhostname_backup.png)
 
 
-# 4) load test
+# 5) load test with 100 users 
+
+## without LB
+
+![graph-no-lb.png](images%2Fgraph-no-lb.png)
+
+## with LB
+
+![graph-lb.png](images%2Fgraph-lb.png)
+
+|             | no-LB  | LB    |
+|-------------|--------|-------|
+| RPS         | 260    | 290   |
+| latency 50p | 300ms  | 200ms |
+| latency 95p | 1000ms | 800ms |
+
+wee see that with LB RPS is pretty much higher and latency without LB is > 1s and with LB < 1s
+

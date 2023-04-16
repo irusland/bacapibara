@@ -28,6 +28,7 @@ prometheus-client = "^0.16.0"
 starlette-exporter = "^0.15.1"
 psutil = "^5.9.4"
 python-dateutil = "^2.8.2"
+locust = "^2.15.1"
 
 
 [build-system]
