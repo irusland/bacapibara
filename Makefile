@@ -77,6 +77,12 @@ upgrade:
 downgrade:
 	alembic downgrade -1
 
+
+.PHONY: cert
+cert:
+	openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyut key.pem -days 365
+
+
 .PHONY: fqdn
 fqdn:
 	echo "" >>  /etc/hosts && echo "127.0.0.1 irusla.nd" >> /etc/hosts

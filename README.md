@@ -1,6 +1,6 @@
 # bacapibara - Backend Academy API
 
-![bacapybara](bacapybara.png)
+![bacapybara](images/bacapybara.png)
 
 ## Requirements
 
@@ -83,7 +83,12 @@ make downgrade
 
 
 ## Grafana
-![grafana](grafana.png)
+![grafana](images/grafana.png)
+
+
+## Load balancing with NGINX
+
+![lb](images/lb.png)
 
 
 ## Credits 
