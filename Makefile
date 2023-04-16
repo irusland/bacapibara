@@ -28,6 +28,16 @@ docker-up:
 	docker-compose up
 
 
+.PHONY: api-up
+api-up:
+	docker-compose up -d api db grafana prometheus
+
+
+.PHONY: lb-up
+lb-up:
+	docker-compose up nginx
+
+
 .PHONY: swagger
 swagger:
 	open -a safari http://localhost:8000/docs
