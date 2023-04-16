@@ -27,7 +27,7 @@ class App(FastAPI):
         database_manager: DatabaseManager,
         prometheus_manager: PrometheusManager,
     ):
-        super().__init__(title=os.environ.get('HOSTNAME'))
+        super().__init__(title=os.environ.get("HOSTNAME"))
         self.include_router(users_router)
         self.include_router(friends_router)
         self.include_router(login_router)

@@ -12,31 +12,30 @@ class BaraUser(HttpUser):
         password = uuid.uuid4().hex
 
         res = requests.post(
-            f'{self.host}/users', json={
+            f"{self.host}/users",
+            json={
                 "name": "string",
                 "age": 0,
                 "about": "string",
                 "email": email,
                 "password": password,
             },
-            verify=False
+            verify=False,
         )
         assert res.ok
         self._user_id = int(res.text)
-        print('Load test as user', self._user_id)
+        print("Load test as user", self._user_id)
 
         login_res = requests.post(
-            f'{self.host}/login', json={
-                "email": email,
-                "password": password
-            },
-            verify=False
+            f"{self.host}/login",
+            json={"email": email, "password": password},
+            verify=False,
         )
-        session = login_res.headers['set-cookie'].split('=')[1]
-        self._cookies = {'session': session}
+        session = login_res.headers["set-cookie"].split("=")[1]
+        self._cookies = {"session": session}
 
     def on_start(self):
-        """ on_start is called when a Locust start before any task is scheduled """
+        """on_start is called when a Locust start before any task is scheduled"""
         self.client.verify = False
 
     @task
@@ -50,14 +49,15 @@ class BaraUser(HttpUser):
     @task
     def update_user(self):
         self.client.put(
-            f"/users/{self._user_id}", cookies=self._cookies,
+            f"/users/{self._user_id}",
+            cookies=self._cookies,
             json={
                 "name": "string",
                 "age": 0,
                 "about": "string",
                 "email": "string",
-                "password": "string"
-            }
+                "password": "string",
+            },
         )
 
     @task
