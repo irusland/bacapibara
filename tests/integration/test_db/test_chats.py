@@ -2,6 +2,7 @@ import pytest
 
 from api.storage.database.manager import DatabaseManager
 from api.storage.database.chat import ChatStorage
+from api.storage.message import Message
 
 
 @pytest.fixture
@@ -33,3 +34,17 @@ class TestChatStorage:
 
         assert actual_chat.chat_id == max_chat_id + 1
         assert actual_chat.user_ids == user_ids
+
+    async def test_add_message(self, chat_storage: ChatStorage):
+        user_ids = [1, 2, 4]
+        messages = []
+        chat = await chat_storage.create_chat(user_ids=user_ids)
+
+        for user_id in user_ids:
+            message = Message(user_id=user_id, text=f"a text by {user_id}")
+            messages.append(message)
+            await chat_storage.add_message(chat_id=chat.chat_id, message=message)
+
+        actual_chat = await chat_storage.get_chat(chat_id=chat.chat_id)
+        assert actual_chat.chat_id == chat.chat_id
+        assert actual_chat.messages == messages

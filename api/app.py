@@ -8,6 +8,7 @@ from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.metrics import MetricsRouter
+from api.routers.search import SearchRouter
 from api.routers.users import UsersRouter
 from api.storage.database.manager import DatabaseManager
 
@@ -19,6 +20,7 @@ class App(FastAPI):
         friends_router: FriendsRouter,
         login_router: LoginRouter,
         chat_router: ChatRouter,
+        search_router: SearchRouter,
         metrics_router: MetricsRouter,
         database_manager: DatabaseManager,
         prometheus_manager: PrometheusManager,
@@ -28,6 +30,7 @@ class App(FastAPI):
         self.include_router(friends_router)
         self.include_router(login_router)
         self.include_router(chat_router)
+        self.include_router(search_router)
 
         self.include_router(metrics_router)
         self.add_middleware(PrometheusMiddleware)

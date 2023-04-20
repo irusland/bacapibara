@@ -11,6 +11,7 @@ from api.storage.database.base import Base
 from api.storage.database.chat import Chats
 from api.storage.database.users import Users
 from api.storage.database.friends import Friends
+from api.storage.database.messages import Messages
 
 from api.storage.database.settings import PostgresSettings
 
@@ -48,9 +49,10 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+
+    db_url = PostgresSettings().connect_url.render_as_string(hide_password=False)
     context.configure(
-        url=url,
+        url=db_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},

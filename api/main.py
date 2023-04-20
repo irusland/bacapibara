@@ -10,10 +10,12 @@ from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
 from api.routers.metrics import MetricsRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
+from api.routers.search import SearchRouter
 from api.routers.users import UsersRouter
 from api.storage.database.chat import ChatStorage
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.manager import DatabaseManager
+from api.storage.database.search import SearchStorage
 from api.storage.database.settings import PostgresSettings
 from api.storage.database.users import UsersStorage
 
@@ -64,6 +66,12 @@ chat_router = ChatRouter(
     web_socket_connection_manager=web_socket_connection_manager,
 )
 
+search_storage = SearchStorage(database_manager=database_manager)
+search_router = SearchRouter(
+    search_storage=search_storage,
+    friends_storage=friends_storage,
+    jwt_middleware=jwt_middleware,
+)
 
 prometheus_manager = PrometheusManager()
 metrics_router = MetricsRouter(prometheus_manager=prometheus_manager)
@@ -73,6 +81,7 @@ app = App(
     friends_router=friends_router,
     login_router=login_router,
     chat_router=chat_router,
+    search_router=search_router,
     metrics_router=metrics_router,
     database_manager=database_manager,
     prometheus_manager=prometheus_manager,

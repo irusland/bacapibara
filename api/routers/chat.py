@@ -12,12 +12,14 @@ from websockets.exceptions import WebSocketException
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
+from api.models.api.chat import Chat
 from api.models.api.user_credentials import UserCredentials
 from api.models.db.user import User
 from api.routers.middlewares.jwt import JWTMiddleware
 from api.storage.interface.users import IUsersStorage
 from api.storage.interface.chat import IChatStorage
 from api.storage.interface.friends import IFriendsStorage
+from api.storage.message import Message
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +109,13 @@ class ChatRouter(APIRouter):
         ):
             return HTMLResponse(_get_HTML(chat_id=chat_id, user=user))
 
-        @self.websocket("/ws/{chat_id}")
+        async def _load_chat_messages(user_id: int, chat: Chat):
+            for message in chat.messages:
+                await web_socket_connection_manager.broadcast_to_users(
+                    [user_id], message=message
+                )
+
+        @self.websocket("/chat/ws/{chat_id}")
         async def websocket_endpoint(
             websocket: WebSocket,
             chat_id: int,
@@ -119,21 +127,29 @@ class ChatRouter(APIRouter):
             except:
                 raise WebSocketException("User unauthorized")
 
-            print(f">>> {user=}")
             web_socket_connection_manager.connect(user_id=user.id, websocket=websocket)
 
             chat = await chat_storage.get_chat(chat_id)
+            logger.debug("Processing the chat %s", chat)
+
+            await _load_chat_messages(user.id, chat)
 
             try:
                 while True:
-                    data = await websocket.receive_text()
+                    text = await websocket.receive_text()
+                    message = Message(chat_id=chat_id, user_id=user.id, text=text)
+                    await chat_storage.add_message(chat_id=chat_id, message=message)
                     await web_socket_connection_manager.broadcast_to_users(
-                        chat.user_ids, f"({user.name}): {data}"
+                        chat.user_ids, message=message
                     )
+
             except WebSocketDisconnect:
                 web_socket_connection_manager.disconnect(
                     user_id=user.id, websocket=websocket
                 )
+                text = f"User left the chat"
+                message = Message(chat_id=chat_id, user_id=user.id, text=text)
+                await chat_storage.add_message(chat_id=chat_id, message=message)
                 await web_socket_connection_manager.broadcast_to_users(
-                    chat.user_ids, f"User ({user.name}) left the chat"
+                    chat.user_ids, message=message
                 )
