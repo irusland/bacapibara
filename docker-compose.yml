@@ -4,7 +4,7 @@ x-db-variables: &db-variables
   POSTGRES_DB: ${POSTGRES_DB:-postgres}
   POSTGRES_USER: ${POSTGRES_USER:-irusland}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-irusland}
-  POSTGRES_HOST: ${POSTGRES_HOST:-db}
+  POSTGRES_HOST: ${POSTGRES_HOST:-db_1}
   POSTGRES_PORT: ${POSTGRES_PORT:-5432}
 
 services:
@@ -12,11 +12,25 @@ services:
     image: postgres:latest
     environment:
       <<: *db-variables
-      PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER:-irusland} -d ${POSTGRES_DB:-postgres}'" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+
+  db_2:
+    image: postgres:latest
+    environment:
+      <<: *db-variables
+      PGDATA: "/var/lib/pgdata"
+    volumes:
+      - ./postgres/db_2:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER:-irusland} -d ${POSTGRES_DB:-postgres}'" ]
       interval: 3s
