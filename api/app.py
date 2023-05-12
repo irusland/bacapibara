@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from starlette.responses import JSONResponse
 from starlette_exporter import PrometheusMiddleware
@@ -25,7 +27,7 @@ class App(FastAPI):
         database_manager: DatabaseManager,
         prometheus_manager: PrometheusManager,
     ):
-        super().__init__()
+        super().__init__(title=os.environ.get("HOSTNAME"))
         self.include_router(users_router)
         self.include_router(friends_router)
         self.include_router(login_router)

@@ -28,6 +28,16 @@ docker-up:
 	docker-compose up
 
 
+.PHONY: api-up
+api-up:
+	docker-compose up -d api db grafana prometheus
+
+
+.PHONY: lb-up
+lb-up:
+	docker-compose up nginx
+
+
 .PHONY: swagger
 swagger:
 	open -a safari http://localhost:8000/docs
@@ -66,3 +76,18 @@ upgrade:
 .PHONY: downgrade
 downgrade:
 	alembic downgrade -1
+
+
+.PHONY: cert
+cert:
+	openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyut key.pem -days 365
+
+
+.PHONY: fqdn
+fqdn:
+	echo "" >>  /etc/hosts && echo "127.0.0.1 irusla.nd" >> /etc/hosts
+
+
+.PHONY: locust
+locust:
+	locust -H https://irusla.nd

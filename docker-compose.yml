@@ -48,8 +48,6 @@ services:
     build:
       dockerfile: docker/Dockerfile
       context: .
-    ports:
-      - "8000:8000"
     command:
       - python3
       - -m
@@ -67,13 +65,26 @@ services:
         condition: service_started
       db:
         condition: service_healthy
-
     links:
       - db
     networks:
       - backend
       - metrics
+    deploy:
+      mode: replicated
+      replicas: 3
 
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/cert.pem:/etc/nginx/cert.pem
+      - ./certs/key.pem:/etc/nginx/key.pem
+    ports:
+      - "80:8080"
+      - "443:443"
+    networks:
+      - backend
 
 volumes:
   postgres_data:
