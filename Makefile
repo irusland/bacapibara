@@ -1,6 +1,11 @@
 PYTHON_VERSION=3.11
 VENV=.venv
 
+
+include .test.env
+export
+
+
 .PHONY: init
 init:
 	python$(PYTHON_VERSION) -m venv $(VENV)
