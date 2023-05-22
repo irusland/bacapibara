@@ -8,7 +8,7 @@ class QueueSettings(BaseSettings):
 
 
 class AnnouncementQueueSettings(QueueSettings):
-    queue: str = 'irusland_announcements'
+    queue: str = "irusland_announcements"
 
     class Config:
-        env_prefix = 'ANNOUNCEMENT_QUEUE_'
+        env_prefix = "ANNOUNCEMENT_QUEUE_"

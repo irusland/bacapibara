@@ -27,13 +27,12 @@ class AnnouncementsRouter(APIRouter):
         announcement_storage: IAnnouncementStorage,
     ):
         super().__init__()
-        self.tags = ['announcements']
+        self.tags = ["announcements"]
 
         @self.get("/announcements")
         async def get_announcements(
             user: User = Depends(jwt_middleware.get_user()),
         ) -> Announcements:
-
             logger.debug("Getting announcements of user %s", user)
 
             announcements = await announcement_redis_storage.get_announcements(user.id)
@@ -52,10 +51,16 @@ class AnnouncementsRouter(APIRouter):
                 at=datetime.now(),
             )
 
-            logger.debug('Saving Announcement %s into db for user %s', announcement, user)
-            await announcement_storage.add_announcement(user_id=user.id, announcement=announcement)
+            logger.debug(
+                "Saving Announcement %s into db for user %s", announcement, user
+            )
+            await announcement_storage.add_announcement(
+                user_id=user.id, announcement=announcement
+            )
 
-            logger.debug("Announcing %s for firends %s of user %s", announcement, friends, user)
+            logger.debug(
+                "Announcing %s for firends %s of user %s", announcement, friends, user
+            )
             tasks = []
             for friend in friends:
                 task = AnnounceTask(

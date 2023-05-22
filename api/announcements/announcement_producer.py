@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class AnnouncementProducer:
-    def __init__(self, producer: Producer, announcement_redis_storage: AnnouncementRedisStorage):
+    def __init__(
+        self, producer: Producer, announcement_redis_storage: AnnouncementRedisStorage
+    ):
         self._producer = producer
         self._announcement_redis_storage = announcement_redis_storage
 

@@ -12,9 +12,7 @@ from api.storage.interface.announcements import IAnnouncementStorage
 class Announcements(Base):
     statement: Mapped[str] = mapped_column(nullable=False)
     by: Mapped[int] = mapped_column(nullable=False)
-    at: Mapped[datetime] = mapped_column(
-        nullable=False, server_default=func.now()
-    )
+    at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
 
 
 class AnnouncementStorage(IAnnouncementStorage):
@@ -24,8 +22,16 @@ class AnnouncementStorage(IAnnouncementStorage):
     async def add_announcement(self, user_id: int, announcement: Announcement):
         async with self._database_manager.async_session() as session:
             async with session.begin():
-                session.add(Announcements(statement=announcement.statement.content, by=announcement.by, at=announcement.at))
+                session.add(
+                    Announcements(
+                        statement=announcement.statement.content,
+                        by=announcement.by,
+                        at=announcement.at,
+                    )
+                )
 
     async def size(self) -> int:
         async with self._database_manager.async_session() as session:
-            return (await session.execute(select(func.count(Announcements.id)))).scalar_one()
+            return (
+                await session.execute(select(func.count(Announcements.id)))
+            ).scalar_one()

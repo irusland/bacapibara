@@ -10,7 +10,9 @@ class AnnouncementRedisStorage(BaseRedisStorage):
     def __init__(self, redis_settings: RedisSettings):
         super().__init__(redis_settings)
 
-    async def add_announcement(self, to: UserId, announcement: Announcement) -> Announcements:
+    async def add_announcement(
+        self, to: UserId, announcement: Announcement
+    ) -> Announcements:
         key = str(to)
         container = Announcements.parse_raw(await self._get(key))
         container.announcements.append(announcement)

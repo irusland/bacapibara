@@ -26,13 +26,13 @@ class BaseRedisStorage:
     async def _get(self, key: str) -> str:
         return await self._redis.get(key)
 
-    async def _set_batch(self, key_values: list[tuple[str,str]]):
+    async def _set_batch(self, key_values: list[tuple[str, str]]):
         async with self._redis.pipeline(transaction=True) as pipe:
             for k, v in key_values:
                 pipe = pipe.set(k, v)
 
-            results = await (pipe.execute(raise_on_error=True))
-            logger.debug('Batch set results: %s', results)
+            results = await pipe.execute(raise_on_error=True)
+            logger.debug("Batch set results: %s", results)
 
     async def _get_batch(self, keys: list[str]) -> list[str]:
         async with self._redis.pipeline(transaction=True) as pipe:

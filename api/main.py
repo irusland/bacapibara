@@ -84,12 +84,20 @@ prometheus_manager = PrometheusManager()
 metrics_router = MetricsRouter(prometheus_manager=prometheus_manager)
 
 queue_settings = AnnouncementQueueSettings()
-producer=Producer(queue_settings=queue_settings)
-redis_settings=RedisSettings()
-announcement_redis_storage=AnnouncementRedisStorage(redis_settings=redis_settings)
-announcement_producer = AnnouncementProducer(producer=producer, announcement_redis_storage=announcement_redis_storage)
-announcement_storage= AnnouncementStorage(database_manager=database_manager)
-announcements_router=AnnouncementsRouter(friends_storage=friends_storage,jwt_middleware=jwt_middleware,announcement_producer=announcement_producer,announcement_redis_storage=announcement_redis_storage, announcement_storage=announcement_storage)
+producer = Producer(queue_settings=queue_settings)
+redis_settings = RedisSettings()
+announcement_redis_storage = AnnouncementRedisStorage(redis_settings=redis_settings)
+announcement_producer = AnnouncementProducer(
+    producer=producer, announcement_redis_storage=announcement_redis_storage
+)
+announcement_storage = AnnouncementStorage(database_manager=database_manager)
+announcements_router = AnnouncementsRouter(
+    friends_storage=friends_storage,
+    jwt_middleware=jwt_middleware,
+    announcement_producer=announcement_producer,
+    announcement_redis_storage=announcement_redis_storage,
+    announcement_storage=announcement_storage,
+)
 
 app = App(
     users_router=users_router,
