@@ -55,7 +55,7 @@ class TestAnnouncements:
 
         res = await async_client.post(
             "/announcement",
-            params={'content': 'привет!'},
+            params={"content": "привет!"},
         )
 
         assert res.status_code == HTTPStatus.OK
