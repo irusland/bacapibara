@@ -73,6 +73,11 @@ kube-run:
 	kubectl run bacapibara-api --image=bacapibara_api:latest --port=8000 --image-pull-policy=Never --command -- python3 -m uvicorn api.main:app --host 0.0.0.0
 
 
+.PHONY: revision
+revision:
+	alembic revision --autogenerate -m ${MSG}
+
+
 .PHONY: upgrade
 upgrade:
 	alembic upgrade head

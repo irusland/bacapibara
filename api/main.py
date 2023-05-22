@@ -16,6 +16,7 @@ from api.routers.metrics import MetricsRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.search import SearchRouter
 from api.routers.users import UsersRouter
+from api.storage.database.announcements import AnnouncementStorage
 from api.storage.database.chat import ChatStorage
 from api.storage.database.friends import FriendsStorage
 from api.storage.database.manager import DatabaseManager
@@ -87,7 +88,8 @@ producer=Producer(queue_settings=queue_settings)
 redis_settings=RedisSettings()
 announcement_redis_storage=AnnouncementRedisStorage(redis_settings=redis_settings)
 announcement_producer = AnnouncementProducer(producer=producer, announcement_redis_storage=announcement_redis_storage)
-announcements_router=AnnouncementsRouter(friends_storage=friends_storage,jwt_middleware=jwt_middleware,announcement_producer=announcement_producer,announcement_redis_storage=announcement_redis_storage)
+announcement_storage= AnnouncementStorage(database_manager=database_manager)
+announcements_router=AnnouncementsRouter(friends_storage=friends_storage,jwt_middleware=jwt_middleware,announcement_producer=announcement_producer,announcement_redis_storage=announcement_redis_storage, announcement_storage=announcement_storage)
 
 app = App(
     users_router=users_router,

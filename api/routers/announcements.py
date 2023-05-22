@@ -9,6 +9,7 @@ from api.models.key_value.announcement import Announcement
 from api.models.key_value.statement import Statement
 from api.queue.models.announce_task import AnnounceTask
 from api.routers.middlewares.jwt import JWTMiddleware
+from api.storage.interface.announcements import IAnnouncementStorage
 from api.storage.interface.friends import IFriendsStorage
 from api.storage.key_value.announcement import AnnouncementRedisStorage
 from api.models.key_value.announcements import Announcements
@@ -23,6 +24,7 @@ class AnnouncementsRouter(APIRouter):
         jwt_middleware: JWTMiddleware,
         announcement_redis_storage: AnnouncementRedisStorage,
         announcement_producer: AnnouncementProducer,
+        announcement_storage: IAnnouncementStorage,
     ):
         super().__init__()
         self.tags = ['announcements']
@@ -49,8 +51,11 @@ class AnnouncementsRouter(APIRouter):
                 by=user.id,
                 at=datetime.now(),
             )
-            logger.debug("Announcing %s for firends %s of user %s", announcement, friends, user)
 
+            logger.debug('Saving Announcement %s into db for user %s', announcement, user)
+            await announcement_storage.add_announcement(user_id=user.id, announcement=announcement)
+
+            logger.debug("Announcing %s for firends %s of user %s", announcement, friends, user)
             tasks = []
             for friend in friends:
                 task = AnnounceTask(
