@@ -14,7 +14,11 @@ class AnnouncementRedisStorage(BaseRedisStorage):
         self, to: UserId, announcement: Announcement
     ) -> Announcements:
         key = str(to)
-        container = Announcements.parse_raw(await self._get(key))
+        stored = await self._get(key)
+        container = Announcements(announcements=[])
+        if stored is not None:
+            container = Announcements.parse_raw(stored)
+
         container.announcements.append(announcement)
         await self._set(key, container.json())
         return container

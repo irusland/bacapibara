@@ -1,11 +1,13 @@
 import logging
 
+from api.announcements.announcement_consumer import AnnouncementConsumer
 from api.announcements.announcement_producer import AnnouncementProducer
 from api.app import App
 from api.prometheus.manager import PrometheusManager
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
+from api.queue.consumer import Consumer
 from api.queue.producer import Producer
 from api.queue.settings import QueueSettings, AnnouncementQueueSettings
 from api.routers.announcements import AnnouncementsRouter

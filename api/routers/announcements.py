@@ -62,11 +62,12 @@ class AnnouncementsRouter(APIRouter):
                 "Announcing %s for firends %s of user %s", announcement, friends, user
             )
             tasks = []
-            for friend in friends:
+            for user_id in friends + [user.id]:
                 task = AnnounceTask(
                     announcement=announcement,
-                    to=friend,
+                    to=user_id,
                 )
                 tasks.append(task)
+
 
             return await announcement_producer.announce(tasks=tasks)

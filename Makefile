@@ -101,3 +101,14 @@ fqdn:
 .PHONY: locust
 locust:
 	locust -H https://irusla.nd
+
+
+.PHONY: consumer
+consumer:
+	python -m api.announcements
+
+
+.PHONY: docker-consumer
+docker-consumer:
+	docker-compose up consumer
+

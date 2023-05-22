@@ -7,6 +7,10 @@ x-db-variables: &db-variables
   POSTGRES_HOST: ${POSTGRES_HOST:-db_1}
   POSTGRES_PORT: ${POSTGRES_PORT:-5432}
 
+x-consumer-variables: &consumer-variables
+  ANNOUNCEMENT_QUEUE_URL: amqp://guest:guest@rabbit/
+  REDIS_URL: redis://redis
+
 services:
   db:
     image: postgres:latest
@@ -118,6 +122,26 @@ services:
       - '15672:15672'
     networks:
       - backend
+
+  consumer:
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    command:
+      - python3
+      - -m
+      - api.announcements
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+    environment:
+      <<: *consumer-variables
+    networks:
+      - backend
+    deploy:
+      mode: replicated
+      replicas: 3
+
 
 volumes:
   postgres_data:
