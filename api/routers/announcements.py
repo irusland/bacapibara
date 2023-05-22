@@ -69,5 +69,4 @@ class AnnouncementsRouter(APIRouter):
                 )
                 tasks.append(task)
 
-
             return await announcement_producer.announce(tasks=tasks)
