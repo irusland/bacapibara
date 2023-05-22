@@ -5,11 +5,15 @@ import pytest
 import pytest_asyncio
 from starlette.testclient import TestClient
 
+from api.announcements.announcement_producer import AnnouncementProducer
 from api.auth.jwt_manager import JWTManager
 from api.auth.jwt_settings import JWTSettings
 from api.connection.web_socket_connection_manager import WebSocketConnectionManager
 from api.app import App
 from api.prometheus.manager import PrometheusManager
+from api.queue.producer import Producer
+from api.queue.settings import QueueSettings, AnnouncementQueueSettings
+from api.routers.announcements import AnnouncementsRouter
 from api.routers.metrics import MetricsRouter
 from api.routers.search import SearchRouter
 from api.storage.database.manager import DatabaseManager
@@ -19,6 +23,10 @@ from api.routers.login import LoginRouter
 from api.routers.middlewares.jwt import JWTMiddleware, JWTBearer, JWTCookie
 from api.routers.users import UsersRouter
 from api.storage.database.search import SearchStorage
+from api.storage.interface.announcements import IAnnouncementStorage
+from api.storage.interface.friends import IFriendsStorage
+from api.storage.key_value.announcement import AnnouncementRedisStorage
+from api.storage.key_value.base import RedisSettings
 from api.storage.memory.chat import ChatStorage
 from api.storage.memory.friends import FriendsStorage
 from api.storage.memory.users import UsersStorage
@@ -171,6 +179,67 @@ def search_router(
 
 
 @pytest.fixture()
+def redis_settings() -> RedisSettings:
+    return RedisSettings()
+
+
+@pytest.fixture()
+def announcement_redis_storage(
+    redis_settings: RedisSettings,
+) -> AnnouncementRedisStorage:
+    return AnnouncementRedisStorage(
+        redis_settings=redis_settings,
+    )
+
+
+@pytest.fixture()
+def queue_settings() -> AnnouncementQueueSettings:
+    return AnnouncementQueueSettings()
+
+
+@pytest.fixture()
+def producer(
+    queue_settings: QueueSettings,
+) -> Producer:
+    return Producer(
+        queue_settings=queue_settings,
+    )
+
+
+@pytest.fixture()
+def announcement_storage() -> IAnnouncementStorage:
+    return Mock(IAnnouncementStorage)
+
+
+@pytest.fixture()
+def announcement_producer(
+    producer: Producer,
+    announcement_redis_storage: AnnouncementRedisStorage,
+) -> AnnouncementProducer:
+    return AnnouncementProducer(
+        producer=producer,
+        announcement_redis_storage=announcement_redis_storage,
+    )
+
+
+@pytest.fixture()
+def announcements_router(
+    friends_storage: IFriendsStorage,
+    jwt_middleware: JWTMiddleware,
+    announcement_redis_storage: AnnouncementRedisStorage,
+    announcement_producer: AnnouncementProducer,
+    announcement_storage: IAnnouncementStorage,
+) -> AnnouncementsRouter:
+    return AnnouncementsRouter(
+        friends_storage=friends_storage,
+        jwt_middleware=jwt_middleware,
+        announcement_redis_storage=announcement_redis_storage,
+        announcement_producer=announcement_producer,
+        announcement_storage=announcement_storage,
+    )
+
+
+@pytest.fixture()
 def app(
     users_router: UsersRouter,
     friends_router: FriendsRouter,
@@ -180,6 +249,7 @@ def app(
     search_router: SearchRouter,
     database_manager: DatabaseManager,
     prometheus_manager: PrometheusManager,
+    announcements_router: AnnouncementsRouter,
 ) -> App:
     return App(
         users_router=users_router,
@@ -190,6 +260,7 @@ def app(
         search_router=search_router,
         database_manager=database_manager,
         prometheus_manager=prometheus_manager,
+        announcements_router=announcements_router,
     )
 
 
