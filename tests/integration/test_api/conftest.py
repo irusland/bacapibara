@@ -213,9 +213,7 @@ def queue_settings() -> AnnouncementQueueSettings:
 def producer(
     queue_settings: QueueSettings,
 ) -> Producer:
-    return Producer(
-        queue_settings=queue_settings,
-    )
+    return Mock(Producer)
 
 
 @pytest.fixture()

@@ -89,9 +89,7 @@ queue_settings = AnnouncementQueueSettings()
 producer = Producer(queue_settings=queue_settings)
 redis_settings = RedisSettings()
 announcement_redis_storage = AnnouncementRedisStorage(redis_settings=redis_settings)
-announcement_producer = AnnouncementProducer(
-    producer=producer, announcement_redis_storage=announcement_redis_storage
-)
+announcement_producer = AnnouncementProducer(producer=producer)
 announcement_storage = AnnouncementStorage(database_manager=database_manager)
 announcements_router = AnnouncementsRouter(
     friends_storage=friends_storage,
