@@ -49,7 +49,7 @@ class AnnouncementsRouter(APIRouter):
                 by=user.id,
                 at=datetime.now(),
             )
-            logger.debug("Announcing % for firends %s of user %s", announcement, friends, user)
+            logger.debug("Announcing %s for firends %s of user %s", announcement, friends, user)
 
             tasks = []
             for friend in friends:
