@@ -187,9 +187,21 @@ def redis_settings() -> RedisSettings:
 def announcement_redis_storage(
     redis_settings: RedisSettings,
 ) -> AnnouncementRedisStorage:
-    return AnnouncementRedisStorage(
+    announcement_redis_storage = AnnouncementRedisStorage(
         redis_settings=redis_settings,
     )
+    redis = {}
+
+    async def _set(key, value):
+        redis[key] = value
+
+    announcement_redis_storage._set = Mock(wraps=_set)
+
+    async def _get(key):
+        return redis.get(key)
+
+    announcement_redis_storage._get = Mock(wraps=_get)
+    return announcement_redis_storage
 
 
 @pytest.fixture()
@@ -214,11 +226,9 @@ def announcement_storage() -> IAnnouncementStorage:
 @pytest.fixture()
 def announcement_producer(
     producer: Producer,
-    announcement_redis_storage: AnnouncementRedisStorage,
 ) -> AnnouncementProducer:
     return AnnouncementProducer(
         producer=producer,
-        announcement_redis_storage=announcement_redis_storage,
     )
 
 
