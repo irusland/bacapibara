@@ -29,6 +29,8 @@ starlette-exporter = "^0.15.1"
 psutil = "^5.9.4"
 python-dateutil = "^2.8.2"
 locust = "^2.15.1"
+redis = "^4.5.5"
+aio-pika = "^9.0.7"
 
 
 [build-system]

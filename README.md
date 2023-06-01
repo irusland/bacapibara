@@ -91,6 +91,34 @@ make downgrade
 ![lb](images/lb.png)
 
 
+## Queue messaging
+
+lets start the app with multiple consumers at the same time! 
+
+![info.png](images%2Fqueue%2Finfo.png)
+
+make 2 separate accounts
+
+then send an announcement from user 1 to friends
+![request.png](images%2Fqueue%2Frequest.png)
+
+we see rps goes up
+![queue_rps.png](images%2Fqueue%2Fqueue_rps.png)
+in each consumer we see `b'{"announcement": {"statement": {"content": "\\u041f\\u0440\\u0438\\u0432\\u0435\\u0442!"}, "by": 0, "at": "2023-05-23T02:01:10.862164"}, "to": 1}'`
+
+take a look at user 2 announcements, here they are!
+![announcements.png](images%2Fqueue%2Fannouncements.png)
+
+lets spam for a bit. works great
+![2users.png](images%2Fqueue%2F2users.png)
+
+database also stores the messages
+![db.png](images%2Fqueue%2Fdb.png)
+
+actually both users see the messages
+![two_announcements.png](images%2Fqueue%2Ftwo_announcements.png)
+
+
 ## Credits 
 
 [Ruslan Sirazhetdinov - @irusland](https://github.com/irusland)

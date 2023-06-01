@@ -1,6 +1,11 @@
 PYTHON_VERSION=3.11
 VENV=.venv
 
+
+include .test.env
+export
+
+
 .PHONY: init
 init:
 	python$(PYTHON_VERSION) -m venv $(VENV)
@@ -68,6 +73,11 @@ kube-run:
 	kubectl run bacapibara-api --image=bacapibara_api:latest --port=8000 --image-pull-policy=Never --command -- python3 -m uvicorn api.main:app --host 0.0.0.0
 
 
+.PHONY: revision
+revision:
+	alembic revision --autogenerate -m ${MSG}
+
+
 .PHONY: upgrade
 upgrade:
 	alembic upgrade head
@@ -91,3 +101,14 @@ fqdn:
 .PHONY: locust
 locust:
 	locust -H https://irusla.nd
+
+
+.PHONY: consumer
+consumer:
+	python -m api.announcements
+
+
+.PHONY: docker-consumer
+docker-consumer:
+	docker-compose up consumer
+

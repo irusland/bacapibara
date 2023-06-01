@@ -6,6 +6,7 @@ from starlette_exporter import PrometheusMiddleware
 
 from api.errors import UserNotFoundError, NotAuthorizedError, NotAuthenticatedError
 from api.prometheus.manager import PrometheusManager
+from api.routers.announcements import AnnouncementsRouter
 from api.routers.chat import ChatRouter
 from api.routers.friends import FriendsRouter
 from api.routers.login import LoginRouter
@@ -26,6 +27,7 @@ class App(FastAPI):
         metrics_router: MetricsRouter,
         database_manager: DatabaseManager,
         prometheus_manager: PrometheusManager,
+        announcements_router: AnnouncementsRouter,
     ):
         super().__init__(title=os.environ.get("HOSTNAME"))
         self.include_router(users_router)
@@ -36,6 +38,8 @@ class App(FastAPI):
 
         self.include_router(metrics_router)
         self.add_middleware(PrometheusMiddleware)
+
+        self.include_router(announcements_router)
 
         self.exception_handler(UserNotFoundError)(self._user_not_found_handler_error)
         self.exception_handler(NotAuthorizedError)(self._bad_auth_error)

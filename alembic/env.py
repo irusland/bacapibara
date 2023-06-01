@@ -12,6 +12,7 @@ from api.storage.database.chat import Chats
 from api.storage.database.users import Users
 from api.storage.database.friends import Friends
 from api.storage.database.messages import Messages
+from api.storage.database.announcements import Announcements
 
 from api.storage.database.settings import PostgresSettings
 

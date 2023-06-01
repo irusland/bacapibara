@@ -7,6 +7,10 @@ x-db-variables: &db-variables
   POSTGRES_HOST: ${POSTGRES_HOST:-db_1}
   POSTGRES_PORT: ${POSTGRES_PORT:-5432}
 
+x-consumer-variables: &consumer-variables
+  ANNOUNCEMENT_QUEUE_URL: amqp://guest:guest@rabbit/
+  REDIS_URL: redis://redis
+
 services:
   db:
     image: postgres:latest
@@ -100,10 +104,53 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+    networks:
+      - backend
+
+  rabbit:
+    image: rabbitmq:3.10.7-management
+    ports:
+      - '5672:5672'
+      - '5673:5673'
+      - '15672:15672'
+    networks:
+      - backend
+
+  consumer:
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    command:
+      - python3
+      - -m
+      - api.announcements
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+    environment:
+      <<: *consumer-variables
+    networks:
+      - backend
+    deploy:
+      mode: replicated
+      replicas: 3
+
+
 volumes:
   postgres_data:
   grafana-storage:
     external: true
+  cache:
+    driver: local
+
+
 networks:
   backend:
   metrics:
