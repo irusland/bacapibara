@@ -9,6 +9,8 @@ class BotSettings(BaseSettings):
     token: str
     id: int
 
+    max_gen: int = 100
+
     request_duration = timedelta(seconds=3)
 
     @property

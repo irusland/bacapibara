@@ -15,6 +15,7 @@ class TritonClientSettings(BaseSettings):
     model_version: str = "1"
     tokenizer_name: str = 'gpt2'
     batch_size: int = 1
+    dot_token: int = 13
 
 
 class TritonClient:
@@ -38,8 +39,6 @@ class TritonClient:
             inputs[0].set_data_from_numpy(input_ids_data)
 
             outputs = []
-            # outputs.append(InferRequestedOutput('output1', [-1,2], "FP32"))
-
             results = self._client.infer(
                 self._settings.model_name,
                 inputs,
@@ -48,7 +47,6 @@ class TritonClient:
                 model_version=self._settings.model_version
             )
             outputs = torch.tensor(results.as_numpy('output1'))
-            # ------------------------------------
             logits = outputs[0]
             logits = logits[:, -1, :]
             log_probs = F.softmax(logits, dim=-1)
@@ -56,8 +54,11 @@ class TritonClient:
             prev = prev.unsqueeze(0)
             output = torch.cat((output, prev), dim=2)
 
-        # output = output[:, len(tokens):].tolist()
-        output = output.squeeze(0).tolist()
+            if prev.item() == self._settings.dot_token:
+                break
+
+        print(output)
+        output = output[:, :, len(tokens):].squeeze(0).tolist()
         generated = 0
         print(output)
         for i in range(self._settings.batch_size):

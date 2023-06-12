@@ -28,8 +28,6 @@ class GPTBot(IBot):
 
         if self._should_process_message():
             ws.send(self._auto_complete(text=message))
-        else:
-            ws.send('Wait a little!')
 
     def on_error(self, ws, error):
         print(error)
@@ -49,16 +47,18 @@ class GPTBot(IBot):
             return False
 
         current_time = time.perf_counter()
+        if self._time_of_last_message is None:
+            self._time_of_last_message = current_time
+
         if self._time_of_last_message is not None:
             diff = current_time - self._time_of_last_message
             self._time_of_last_message = current_time
             return diff > self._bot_settings.request_duration.total_seconds()
 
-        self._time_of_last_message = current_time
 
     def _auto_complete(self, text: str) -> str:
         try:
             self._is_request_being_processed = True
-            return self._triton_client.auto_complete(text)
+            return self._triton_client.auto_complete(text, length=self._bot_settings.max_gen)
         finally:
             self._is_request_being_processed = False
