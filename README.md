@@ -118,6 +118,45 @@ database also stores the messages
 actually both users see the messages
 ![two_announcements.png](images%2Fqueue%2Ftwo_announcements.png)
 
+## Chat with bot
+
+Using pretrained model GPT2 from hugging face we can host it in triton inference server
+
+Then, using listening of websockets we make a bot to chat with.
+
+![chatgpt.gif](chatgpt.gif)
+
+Full dialogue is
+
+```
+(0): Hello my friend
+(0): How are you?
+(13): I'm a big fan of the new "The Walking Dead" series.
+(0): The Moscow is a capital of
+(13): vernacular Russian, and is the capital of the Russian Federation.
+(0): The world i the place for
+(13): ive been in the past.
+(0): Whats the purpose of life
+(13): ? The purpose of life is to be able to live a life of peace and harmony.
+(0): Do you know how to write?
+(13): I'm a writer.
+(0): Will you be able to speak sometime?
+(13): I'm not sure.
+(0): How to write a good code?
+(13): The best way to write code is to write it in a language that is easy to understand.
+(0): 10h81h2h12eh901d290h9hdd
+(13): _______________________________________________________________________________ | | | | | | | | | | | | | | | | | | | | | | | | | | |
+(0): Ok but what about the main idea?
+(13): The main idea is that you can create a new class that will be used to create a new class.
+(0): What is python made for?
+(13): Python is a programming language that is designed to be used in many different ways.
+(0): You are so smart!
+(13): You are so smart! You are so smart! You are so smart! You are so smart! You are so smart! You are so smart!
+(0): Yeah, good bye!
+(13): I'm going to be back in a few days.
+(13): User left the chat
+```
+
 
 ## Credits 
 
