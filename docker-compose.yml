@@ -142,6 +142,14 @@ services:
       mode: replicated
       replicas: 3
 
+  tritonserver:
+    image: nvcr.io/nvidia/tritonserver:23.05-py3
+    command: tritonserver --model-repository=/models --log-verbose 3 --allow-http true --allow-grpc false
+    volumes:
+      - ./models_repository.nosync:/models
+    ports:
+      - '8123:8000'
+
 
 volumes:
   postgres_data:
