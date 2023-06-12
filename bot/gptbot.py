@@ -15,16 +15,16 @@ class GPTBot(IBot):
 
     def on_message(self, ws, message):
         print(message)
-        reg = re.compile(r'\((?P<user_id>\d+)\): (?P<message>.+)')
+        reg = re.compile(r"\((?P<user_id>\d+)\): (?P<message>.+)")
         match = reg.match(message)
         if not match:
-            print('Did not match regex')
+            print("Did not match regex")
             return
         groups = match.groupdict()
-        user_id = int(groups['user_id'])
+        user_id = int(groups["user_id"])
         if user_id == self._bot_settings.id:
             return
-        message = groups['message']
+        message = groups["message"]
 
         if self._should_process_message():
             ws.send(self._auto_complete(text=message))
@@ -55,10 +55,11 @@ class GPTBot(IBot):
             self._time_of_last_message = current_time
             return diff > self._bot_settings.request_duration.total_seconds()
 
-
     def _auto_complete(self, text: str) -> str:
         try:
             self._is_request_being_processed = True
-            return self._triton_client.auto_complete(text, length=self._bot_settings.max_gen)
+            return self._triton_client.auto_complete(
+                text, length=self._bot_settings.max_gen
+            )
         finally:
             self._is_request_being_processed = False
