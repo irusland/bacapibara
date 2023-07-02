@@ -112,3 +112,8 @@ consumer:
 docker-consumer:
 	docker-compose up consumer
 
+
+.PHONY: bot
+bot:
+	python -m bot
+

@@ -31,6 +31,11 @@ python-dateutil = "^2.8.2"
 locust = "^2.15.1"
 redis = "^4.5.5"
 aio-pika = "^9.0.7"
+optimum = {extras = ["exporters"], version = "^1.8.7"}
+tritonclient = {extras = ["http"], version = "^2.34.0"}
+torch = "^2.0.1"
+websocket-client = "^1.5.3"
+rel = "^0.4.9"
 
 
 [build-system]

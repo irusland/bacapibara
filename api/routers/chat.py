@@ -30,9 +30,23 @@ def _get_HTML(chat_id: int, user: User) -> str:
 <html>
     <head>
         <title>Chat</title>
+        <style>
+        ul {{
+            max-height: 200px;
+            overflow-y: auto;
+        }}
+        </style>
+
     </head>
     <body>
-        <h1>WebSocket Chat</h1>
+        <h1>
+          <span>WebSocket Chat by </span>
+        </h1>
+        <h1>
+          <span> by </span>
+          <span id="animated-header"> irusland </span>
+        </h1>
+
         <div>
         <h3>logged in as: {user.name} </h3>
         </div> 
@@ -57,6 +71,42 @@ def _get_HTML(chat_id: int, user: User) -> str:
                 input.value = ''
                 event.preventDefault()
             }}
+            const messageList = document.getElementById('messages');
+            
+            function scrollMessageList() {{
+                messageList.scrollTop = messageList.scrollHeight;
+            }}
+            
+            messageList.addEventListener('DOMNodeInserted', scrollMessageList);
+
+
+            const header = document.getElementById("animated-header");
+            function generateRainbowPalette(N) {{
+              var palette = [];
+              var frequency = (2 * Math.PI) / N;
+              for (var i = 0; i < N; i++) {{
+                var red = Math.round(Math.sin(frequency * i + 0) * 127 + 128);
+                var green = Math.round(Math.sin(frequency * i + (2 * Math.PI) / 3) * 127 + 128);
+                var blue = Math.round(Math.sin(frequency * i + (4 * Math.PI) / 3) * 127 + 128);
+                palette.push(`rgb(${{red}}, ${{green}}, ${{blue}})`);
+              }}
+              return palette;
+            }}
+
+            const colors = generateRainbowPalette(42);
+
+            let shift = 0;
+            
+            setInterval(() => {{
+              let index = 0;
+              shift++;
+              header.innerHTML = header.textContent.split("").map(letter => {{
+                const color = colors[(shift + index++) % colors.length];
+                return `<span style="color: ${{color}}">${{letter}}</span>`;
+              }}).join("");
+              shift = shift % colors.length;
+            }}, 50);
+
         </script>
     </body>
 </html>
